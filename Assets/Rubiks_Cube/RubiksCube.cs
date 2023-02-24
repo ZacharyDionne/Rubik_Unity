@@ -108,15 +108,15 @@ public class RubiksCube : MonoBehaviour
 
 
 
-	public static readonly float CLOCKWISE = 1.0f;
-	public static readonly float COUNTERCLOCKWISE = -1.0f;
+	public static readonly byte CLOCKWISE = 1;
+	public static readonly byte COUNTERCLOCKWISE = 2;
 
 
 	public static GameObject GenerateCube(string[] pattern)
 	{
 		GameObject gameObject = Instantiate(Resources.Load<GameObject>("Rubik's Cube"));
 		gameObject.GetComponent<RubiksCube>().currentPattern = pattern;
-		
+		gameObject.GetComponent<RubiksCube>().SetRotationMap(pattern);
 
 
 		Dictionary<int, Vector3> middlesFrame = new Dictionary<int, Vector3>();
@@ -143,17 +143,6 @@ public class RubiksCube : MonoBehaviour
 		edgesFrame.Add(23, new Vector3(180.0f, 90.0f, 0.0f));
 		edgesFrame.Add(25, new Vector3(0.0f, 180.0f, 180.0f));
 
-		/*
-		Dictionary<int, Vector3> cornersFrame = new Dictionary<int, Vector3>();
-		cornersFrame.Add(0, new Vector3(0.0f, 0.0f, 0.0f));
-		cornersFrame.Add(2, new Vector3(0.0f, 90.0f, 0.0f));
-		cornersFrame.Add(6, new Vector3(0.0f, 90.0f, 180.0f));
-		cornersFrame.Add(8, new Vector3(0.0f, 0.0f, 180.0f));
-		cornersFrame.Add(18, new Vector3(0.0f, -90.0f, 0.0f));
-		cornersFrame.Add(20, new Vector3(0.0f, 180.0f, 0.0f));
-		cornersFrame.Add(24, new Vector3(0.0f, 180.0f, 180.0f));
-		cornersFrame.Add(26, new Vector3(0.0f, -90.0f, 180.0f));
-		*/
 
 
 
@@ -164,6 +153,7 @@ public class RubiksCube : MonoBehaviour
 			
 			Transform cuby = gameObject.transform.Find(FindCuby(DEFAULT_PATTERN, pattern[i]).ToString());
 			gameObject.GetComponent<RubiksCube>().cubyPositions[i] = cuby;
+			
 
 			cuby.position = worldPositions[i];
 			
@@ -319,20 +309,6 @@ public class RubiksCube : MonoBehaviour
 							cuby.Rotate(0.0f, 0.0f, 90.0f);
 					}
 
-					//METHODE ALTERNATIVE QUI NE MARCHE PAS
-
-					//cuby.Rotate(cornersFrame[defaultPosition] - cornersFrame[i]);
-
-					//cuby.rotation *= Quaternion.Euler(cornersFrame[defaultPosition]) * Quaternion.Euler(-cornersFrame[i]);
-
-					/*cuby.Rotate(cornersFrame[defaultPosition] - cornersFrame[i], Space.World);
-					if (i == 6 || i == 8 || i == 24 || i == 26)
-						cuby.Rotate(0.0f, 180.0f, 0.0f, Space.World);*/
-
-					//cuby.Rotate(cornersFrame[defaultPosition], Space.World);
-
-					//cuby.Rotate(-cornersFrame[6], Space.World);
-
 					break;
             }
 			
@@ -377,6 +353,55 @@ public class RubiksCube : MonoBehaviour
 
 		return Array.IndexOf(pattern, cuby);
 	}
+
+
+
+
+
+
+	protected static bool IsCubyOn(string[] pattern, int[] face, string cuby)
+    {
+		int position = FindCuby(pattern, cuby);
+
+		for (int i = 0; i < face.Length; i++)
+        {
+			if (position == face[i])
+				return true;
+        }
+
+		return false;
+    }
+
+
+
+
+	protected static string[] FindCubiesOn(string[] pattern, int[] face)
+    {
+		string[] cubies = new string[9];
+
+		for (int i = 0; i < face.Length; i++)
+        {
+			cubies[i] = pattern[i];
+        }
+
+		return cubies;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -491,7 +516,6 @@ public class RubiksCube : MonoBehaviour
 				if (index != 0)
 				{
 					index -= 1;
-
 				}
 			}
 			else if (Input.GetKeyDown(KeyCode.RightArrow))
@@ -499,7 +523,6 @@ public class RubiksCube : MonoBehaviour
 				if (index != 8)
 				{
 					index += 1;
-
 				}
 			}
 			else if (Input.GetKeyDown(KeyCode.S))
@@ -598,10 +621,6 @@ public class RubiksCube : MonoBehaviour
 
 
 
-
-
-
-
 	public bool IsCorner(int position)
 	{
 		return Array.IndexOf(CORNERS, position) != -1;
@@ -685,28 +704,14 @@ public class RubiksCube : MonoBehaviour
 
 
 
-	public void RotateCorner(int position, float orientation)
+	protected static void RotateCorner(string[] pattern, string cuby, byte orientation)
 	{
-		Dictionary<int, Vector3> cornerRotations = new Dictionary<int, Vector3>();
-		cornerRotations.Add(0, new Vector3(90.0f, 0.0f, 90.0f));
-		cornerRotations.Add(2, new Vector3(0.0f, 0.0f, 90.0f));
-		cornerRotations.Add(6, new Vector3(0.0f, 0.0f, 0.0f));
-		cornerRotations.Add(8, new Vector3(0.0f, 0.0f, 0.0f));
-		cornerRotations.Add(18, new Vector3(0.0f, 0.0f, 0.0f));
-		cornerRotations.Add(20, new Vector3(0.0f, 0.0f, 0.0f));
-		cornerRotations.Add(24, new Vector3(0.0f, 0.0f, 0.0f));
-		cornerRotations.Add(26, new Vector3(0.0f, 0.0f, 0.0f));
+		int position = FindCuby(pattern, cuby);
 
-		Transform cuby = transform.Find(position.ToString());
-
-
-		cuby.Rotate(cornerRotations[position] * orientation, orientation == CLOCKWISE ? Space.Self : Space.World);
-
-
-		if (orientation == 1)
-			currentPattern[position] = currentPattern[position][2].ToString() + currentPattern[position][0].ToString() + currentPattern[position][1].ToString();
+		if (orientation == CLOCKWISE)
+			pattern[position] = pattern[position][2].ToString() + pattern[position][0].ToString() + pattern[position][1].ToString();
 		else
-			currentPattern[position] = currentPattern[position][1].ToString() + currentPattern[position][2].ToString() + currentPattern[position][0].ToString();
+			pattern[position] = pattern[position][1].ToString() + pattern[position][2].ToString() + pattern[position][0].ToString();
 	}
 
 
@@ -1431,13 +1436,14 @@ public class RubiksCube : MonoBehaviour
 
 
 
-
+		
 		for (int i = 0; i < 9; i++)
         {
-			Transform cuby = cubyPositions[rotationPositions[rotationMap[index], i]];
+			//Transform cuby = cubyPositions[rotationPositions[rotationMap[index], i]];
+			Transform cuby = transform.Find(FindCuby(DEFAULT_PATTERN, currentPattern[rotationPositions[rotationMap[index], i]]).ToString());
 			cuby.parent = rotationAnchor.transform;
 		}
-			
+		
 
 	}
 
@@ -1457,9 +1463,22 @@ public class RubiksCube : MonoBehaviour
 
 	protected void RotateEnd()
     {
-		for (int i = 0; i < 9; i++)
+		Transform anchor = transform.Find("Rotation Anchor");
+
+
+		while (true)
         {
-			Transform cuby = cubyPositions[rotationPositions[rotationMap[index], i]];
+			Transform cuby = null;
+
+			try
+			{
+				cuby = anchor.GetChild(0);
+			}
+			catch(UnityException) {}
+			
+
+			if (cuby == null)
+				break;
 
 			cuby.parent = transform;
 		}
@@ -1497,7 +1516,7 @@ public class RubiksCube : MonoBehaviour
 			the correct translations in the array.
 		 */
 
-		
+		/*
 		int currentPosition = 0;
 		for (int i = 2; i > -1; i--)
         {
@@ -1528,10 +1547,17 @@ public class RubiksCube : MonoBehaviour
 		}
 
 
-		/*
+		*/
+
+
+
+
+
+
+
+
+		
 		string[] bufferPattern = new string[9];
-
-
 
 
 
@@ -1540,29 +1566,80 @@ public class RubiksCube : MonoBehaviour
 		{
 			for (int j = 0; j < 7; j += 3)
 			{
-				bufferPattern[currentPosition] = currentPattern[rotationPositions[index, i + j]];
+				bufferPattern[currentPosition] = currentPattern[rotationPositions[rotationMap[index], i + j]];
+				currentPosition += 1;
+
+
+			}
+		}
+
+
+
+
+
+
+		currentPosition = 0;
+		for (int i = 2; i > -1; i--)
+		{
+			for (int j = 0; j < 7; j += 3)
+			{
+				if (IsCorner(bufferPattern[currentPosition]))
+                {	
+					if (rotationMap[index] <= 2 || rotationMap[index] >= 6)
+                    {
+						if
+						(
+							(
+								IsCubyOn(bufferPattern, UP, bufferPattern[currentPosition]) &&
+								IsCubyOn(currentPattern, UP, currentPattern[rotationPositions[rotationMap[index], i + j]])
+							) ||
+							(
+								IsCubyOn(bufferPattern, DOWN, bufferPattern[currentPosition]) &&
+								IsCubyOn(currentPattern, DOWN, currentPattern[rotationPositions[rotationMap[index], i + j]])
+							)
+						)
+						{
+							RotateCorner(bufferPattern, bufferPattern[currentPosition], COUNTERCLOCKWISE);
+						}
+						else
+						{
+							RotateCorner(bufferPattern, bufferPattern[currentPosition], CLOCKWISE);
+						}
+					}
+					
+				}
+
 				currentPosition += 1;
 			}
 		}
 
-		if (direction == -1.0f)
-		Array.Reverse(bufferPattern);
 
 
-		//if ()
 
-		Debug.Log("---------Rotation--------------");
+
+
+
+		//If we want to rotate right, the array is the reverse of what expected to
+		//left. So, we just have to reverse the order in the buffer.
+		if (direction * directionMap[index] == -1.0f)
+			Array.Reverse(bufferPattern);
+
+
+		
+
+
+
+
+
+
+
 		for (int i = 0; i < 9; i++)
         {
 			currentPattern[rotationPositions[index, i]] = bufferPattern[i];
-			Debug.Log(bufferPattern[i]);
+			Debug.Log(currentPattern[i]);
 		}
 
-
-
-
-		*/
-
+		
 
 
 	}

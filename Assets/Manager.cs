@@ -19,7 +19,7 @@ public class Manager : MonoBehaviour
 
 		//cube.GetComponent<RubiksCube>().Randomize();
 
-		cube.GetComponent<RubiksCube>().SetRotationMap(pattern);
+		//cube.GetComponent<RubiksCube>().SetRotationMap(pattern);
 
 		//cube.GetComponent<RubiksCube>().Solve(RubiksCube.DEFAULT_PATTERN);
 
