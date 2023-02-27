@@ -12,7 +12,8 @@ public class Manager : MonoBehaviour
 
 
 
-		GameObject cube = RubiksCube.GenerateCube(RubiksCube.DEFAULT_PATTERN);
+
+		GameObject cube = RubiksCube.GenerateCube(pattern);
 
         cube.transform.parent = transform.parent;
 
