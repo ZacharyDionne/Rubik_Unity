@@ -271,6 +271,17 @@ public class RubiksCube : MonoBehaviour
 		return false;
     }
 
+	protected bool IsCubyOn(int[] face, int position)
+    {
+		for (int i = 0; i < face.Length; i++)
+		{
+			if (position == face[i])
+				return true;
+		}
+
+		return false;
+	}
+
 
 
 
@@ -583,7 +594,10 @@ public class RubiksCube : MonoBehaviour
 		return Array.IndexOf(currentPattern, cuby);
     }
 
-
+	public int FindCuby(Transform[] positions, Transform cuby)
+    {
+		return Array.IndexOf(positions, cuby);
+    }
 
 
 
@@ -768,7 +782,7 @@ public class RubiksCube : MonoBehaviour
 		for (int i = 0; i < 2; i++)
         {
 			cuby.Rotate(rotation, Space.World);
-			RotateCorner(currentPattern, cuby, CLOCKWISE);
+			RotateCorner(cuby, CLOCKWISE);
 
 			if (cuby.name.Equals(desiredOrientation))
 				return;
@@ -816,15 +830,11 @@ public class RubiksCube : MonoBehaviour
 
 
 
-	protected static void RotateCorner(string[] pattern, Transform cuby, byte orientation)
+	protected static void RotateCorner(Transform cuby, byte orientation)
 	{
-		//int position = FindCuby(pattern, cuby);
-
 		if (orientation == CLOCKWISE)
-			//pattern[position] = pattern[position][2].ToString() + pattern[position][0].ToString() + pattern[position][1].ToString();
 			cuby.name = cuby.name[2].ToString() + cuby.name[0].ToString() + cuby.name[1].ToString();
 		else
-			//pattern[position] = pattern[position][1].ToString() + pattern[position][2].ToString() + pattern[position][0].ToString();
 			cuby.name = cuby.name[1].ToString() + cuby.name[2].ToString() + cuby.name[0].ToString();
 	}
 
@@ -1605,13 +1615,13 @@ public class RubiksCube : MonoBehaviour
 
 
 
-		
+		/*
 		for (int i = 0; i < 9; i++)
         {
 			Transform cuby = cubyPositions[rotationPositions[index, i]];
 			cuby.parent = rotationAnchor.transform;
 		}
-		
+		*/
 
 	}
 
@@ -1620,8 +1630,11 @@ public class RubiksCube : MonoBehaviour
 
 	protected void RotateAnimation()
     {
-		rotationAnchor.transform.Rotate(currentAxis, ROTATION * direction);
-		angleCounter += 1;
+		//rotationAnchor.transform.Rotate(currentAxis, ROTATION * direction);
+		for (int i = 0; i < 9; i++)
+			cubyPositions[rotationPositions[index, i]].RotateAround(rotationAnchor.transform.position, currentAxis, ROTATION * direction);
+		
+		angleCounter++;
 
 
 		if (angleCounter == ROTATION_STEP)
@@ -1631,14 +1644,14 @@ public class RubiksCube : MonoBehaviour
 
 	protected void RotateEnd()
     {
-
+		/*
 		while (rotationAnchor.transform.childCount > 0)
         {
 			Transform cuby = rotationAnchor.transform.GetChild(0);
 			cuby.parent = transform;
 
 		}
-
+		*/
 
 		UpdatePositions();
 
@@ -1683,65 +1696,11 @@ public class RubiksCube : MonoBehaviour
 
 
 
-				if (IsCorner(cuby))
-				{
-
-				
 
 
 
 
-
-
-					Transform cuby = cubyPositions[currentPosition];
-
-
-						Transform oldPosition = cubyPositions[rotationPositions[index, currentPosition]];
-
-
-						if (IsCubyOn(currentPattern, UP, oldPosition))
-						{
-							if (IsCubyOn(currentPattern, UP, cuby))
-							{
-								Debug.Log("clockwise rotating " + cuby.name);
-								RotateCorner(currentPattern, cuby, CLOCKWISE);
-							}
-							else
-							{
-								RotateCorner(currentPattern, cuby, COUNTERCLOCKWISE);
-							}
-						}
-						else
-						{
-							if (IsCubyOn(currentPattern, DOWN, cuby))
-							{
-								RotateCorner(currentPattern, cuby, COUNTERCLOCKWISE);
-							}
-							else
-							{
-								Debug.Log("clockwise rotating " + cuby.name);
-								RotateCorner(currentPattern, cuby, CLOCKWISE);
-							}
-						}
-
-
-				}
-		
-				else if (IsEdge(cuby))
-				{
-
-				}
-
-				
-
-
-
-
-
-
-
-
-				currentPosition += 1;
+				currentPosition++;
 			}
 		}
 		
@@ -1753,7 +1712,19 @@ public class RubiksCube : MonoBehaviour
 		//If we want to rotate right, the array is the reverse of what expected to
 		//left. So, we just have to reverse the order in the buffer.
 		if (direction == -1.0f)
-		Array.Reverse(bufferPositions);
+			Array.Reverse(bufferPositions);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1761,6 +1732,51 @@ public class RubiksCube : MonoBehaviour
 
 		for (int i = 0; i < 9; i++)
         {
+			Transform cuby = cubyPositions[rotationPositions[index, i]];
+			int oldPosition = FindCuby(cubyPositions, cuby);
+			int position = cubyPositions[rotationPositions[index, bufferPositions[i]]];
+
+
+
+
+			if (IsCorner(FindCuby(cubyPositions[i])))
+            {
+				Debug.Log(cubyPositions[rotationPositions[index, oldPosition]].name);
+				Debug.Log(bufferPositions[position].name);
+
+
+				if (IsCubyOn(UP, oldPosition))
+				{
+					if (IsCubyOn(UP, position))
+					{
+						RotateCorner(cubyPositions[i], COUNTERCLOCKWISE);
+					}
+					else
+					{
+						RotateCorner(cubyPositions[i], CLOCKWISE);
+					}
+				}
+				else
+				{
+					if (IsCubyOn(UP, position))
+					{
+						RotateCorner(cubyPositions[i], CLOCKWISE);
+					}
+					else
+					{
+						RotateCorner(cubyPositions[i], COUNTERCLOCKWISE);
+					}
+				}
+			}
+			
+
+
+
+
+
+
+
+
 			cubyPositions[rotationPositions[index, i]] = bufferPositions[i];
 		}
 
