@@ -258,7 +258,7 @@ public class RubiksCube : MonoBehaviour
 
 
 
-	protected bool IsCubyOn(string[] pattern, int[] face, Transform cuby)
+	protected bool IsCubyOn(int[] face, Transform cuby)
     {
 		int position = FindCuby(cuby);
 
@@ -816,14 +816,37 @@ public class RubiksCube : MonoBehaviour
 		edgesFrame.Add(23, new Vector3(180.0f, 90.0f, 0.0f));
 		edgesFrame.Add(25, new Vector3(0.0f, 180.0f, 180.0f));
 
+		Dictionary<int, Vector3> edgeRotations = new Dictionary<int, Vector3>();
+		edgeRotations.Add(1, new Vector3(-90.0f, 180.0f, 0.0f));
+		edgeRotations.Add(3, new Vector3(0.0f, 90.0f, 180.0f));
+		edgeRotations.Add(5, new Vector3(0.0f, -90.0f, 180.0f));
+		edgeRotations.Add(7, new Vector3(90.0f, 180.0f, 0.0f));
+		edgeRotations.Add(9, new Vector3(0.0f, 180.0f, 90.0f));
+		edgeRotations.Add(11, new Vector3(0.0f, 180.0f, -90.0f));
+		edgeRotations.Add(15, new Vector3(0.0f, 180.0f, -90.0f));
+		edgeRotations.Add(17, new Vector3(0.0f, 180.0f, 90.0f));
+		edgeRotations.Add(19, new Vector3(90.0f, 180.0f, 0.0f));
+		edgeRotations.Add(21, new Vector3(0.0f, -90.0f, 180.0f));
+		edgeRotations.Add(23, new Vector3(0.0f, 90.0f, 180.0f));
+		edgeRotations.Add(25, new Vector3(-90.0f, 0.0f, 180.0f));
+
+
+
+
+
 
 		cuby.Rotate(edgesFrame[position], Space.World);
 		cuby.Rotate(rotation, Space.World);
 		cuby.Rotate(-edgesFrame[position], Space.World);
+
+
+		cuby.Rotate(edgeRotations[FindCuby(cuby.name)], Space.World);
+
 		RotateEdge(cuby);
 
 		if (cuby.name.Equals(desiredOrientation))
 			return;
+
 
 		throw new Exception($"Impossible de trouver l'orientation {desiredOrientation} pour {cuby.name}");
 	}
@@ -841,30 +864,8 @@ public class RubiksCube : MonoBehaviour
 
 	protected void RotateEdge(Transform cuby)
 	{
-		Dictionary<int, Vector3> edgeRotations = new Dictionary<int, Vector3>();
-		edgeRotations.Add(1, new Vector3(-90.0f, 180.0f, 0.0f));
-		edgeRotations.Add(3, new Vector3(0.0f, 90.0f, 180.0f));
-		edgeRotations.Add(5, new Vector3(0.0f, -90.0f, 180.0f));
-		edgeRotations.Add(7, new Vector3(90.0f, 180.0f, 0.0f));
-		edgeRotations.Add(9, new Vector3(0.0f, 180.0f, 90.0f));
-		edgeRotations.Add(11, new Vector3(0.0f, 180.0f, -90.0f));
-		edgeRotations.Add(15, new Vector3(0.0f, 180.0f, -90.0f));
-		edgeRotations.Add(17, new Vector3(0.0f, 180.0f, 90.0f));
-		edgeRotations.Add(19, new Vector3(90.0f, 180.0f, 0.0f));
-		edgeRotations.Add(21, new Vector3(0.0f, -90.0f, 180.0f));
-		edgeRotations.Add(23, new Vector3(0.0f, 90.0f, 180.0f));
-		edgeRotations.Add(25, new Vector3(-90.0f, 0.0f, 180.0f));
-
-		//Transform cuby = transform.Find(position.ToString());
-
-		cuby.Rotate(edgeRotations[FindCuby(cuby.name)], Space.World);
-
-		//currentPattern[position] = currentPattern[position][1].ToString() + currentPattern[position][0].ToString();
 		cuby.name = cuby.name[1].ToString() + cuby.name[0].ToString();
 	}
-
-
-
 
 
 
@@ -924,611 +925,6 @@ public class RubiksCube : MonoBehaviour
 
 		return json;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	protected int[] rotationMap = new int[9];
-	protected float[] directionMap = new float[9];
-
-	/*
-	public void SetRotationMap(string[] targetPattern)
-	{
-
-		string top = targetPattern[10];
-		string down = targetPattern[16];
-		string front = targetPattern[4];
-		string back = targetPattern[22];
-		string left = targetPattern[12];
-		string right = targetPattern[14];
-
-		if (top.Equals("W"))
-		{
-			if (front.Equals("B"))
-			{
-				rotationMap[0] = 0;
-				rotationMap[1] = 1;
-				rotationMap[2] = 2;
-				rotationMap[3] = 3;
-				rotationMap[4] = 4;
-				rotationMap[5] = 5;
-				rotationMap[6] = 6;
-				rotationMap[7] = 7;
-				rotationMap[8] = 8;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-			else if (front.Equals("O"))
-			{
-				rotationMap[0] = 8;
-				rotationMap[1] = 7;
-				rotationMap[2] = 6;
-				rotationMap[3] = 3;
-				rotationMap[4] = 4;
-				rotationMap[5] = 5;
-				rotationMap[6] = 0;
-				rotationMap[7] = 1;
-				rotationMap[8] = 2;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("G"))
-			{
-				rotationMap[0] = 2;
-				rotationMap[1] = 1;
-				rotationMap[2] = 0;
-				rotationMap[3] = 3;
-				rotationMap[4] = 4;
-				rotationMap[5] = 5;
-				rotationMap[6] = 8;
-				rotationMap[7] = 7;
-				rotationMap[8] = 6;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("R"))
-			{
-				rotationMap[0] = 6;
-				rotationMap[1] = 7;
-				rotationMap[2] = 8;
-				rotationMap[3] = 3;
-				rotationMap[4] = 4;
-				rotationMap[5] = 5;
-				rotationMap[6] = 2;
-				rotationMap[7] = 1;
-				rotationMap[8] = 0;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-		}
-		else if (top.Equals("B"))
-		{
-			if (front.Equals("W"))
-			{
-				rotationMap[0] = 3;
-				rotationMap[1] = 4;
-				rotationMap[2] = 5;
-				rotationMap[3] = 0;
-				rotationMap[4] = 1;
-				rotationMap[5] = 2;
-				rotationMap[6] = 8;
-				rotationMap[7] = 7;
-				rotationMap[8] = 6;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("O"))
-			{
-				rotationMap[0] = 8;
-				rotationMap[1] = 7;
-				rotationMap[2] = 6;
-				rotationMap[3] = 3;
-				rotationMap[4] = 4;
-				rotationMap[5] = 5;
-				rotationMap[6] = 0;
-				rotationMap[7] = 1;
-				rotationMap[8] = 2;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("Y"))
-			{
-				rotationMap[0] = 5;
-				rotationMap[1] = 4;
-				rotationMap[2] = 3;
-				rotationMap[3] = 0;
-				rotationMap[4] = 1;
-				rotationMap[5] = 2;
-				rotationMap[6] = 6;
-				rotationMap[7] = 7;
-				rotationMap[8] = 8;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-			else if (front.Equals("R"))
-			{
-				rotationMap[0] = 6;
-				rotationMap[1] = 7;
-				rotationMap[2] = 8;
-				rotationMap[3] = 0;
-				rotationMap[4] = 1;
-				rotationMap[5] = 2;
-				rotationMap[6] = 3;
-				rotationMap[7] = 4;
-				rotationMap[8] = 5;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-		}
-		else if (top.Equals("Y"))
-		{
-			if (front.Equals("B"))
-			{
-				rotationMap[0] = 0;
-				rotationMap[1] = 1;
-				rotationMap[2] = 2;
-				rotationMap[3] = 5;
-				rotationMap[4] = 4;
-				rotationMap[5] = 3;
-				rotationMap[6] = 8;
-				rotationMap[7] = 7;
-				rotationMap[8] = 6;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("R"))
-			{
-				rotationMap[0] = 6;
-				rotationMap[1] = 7;
-				rotationMap[2] = 8;
-				rotationMap[3] = 5;
-				rotationMap[4] = 4;
-				rotationMap[5] = 3;
-				rotationMap[6] = 0;
-				rotationMap[7] = 1;
-				rotationMap[8] = 2;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("G"))
-			{
-				rotationMap[0] = 2;
-				rotationMap[1] = 1;
-				rotationMap[2] = 0;
-				rotationMap[3] = 5;
-				rotationMap[4] = 4;
-				rotationMap[5] = 3;
-				rotationMap[6] = 6;
-				rotationMap[7] = 7;
-				rotationMap[8] = 8;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-			else if (front.Equals("O"))
-			{
-				rotationMap[0] = 8;
-				rotationMap[1] = 7;
-				rotationMap[2] = 6;
-				rotationMap[3] = 5;
-				rotationMap[4] = 4;
-				rotationMap[5] = 3;
-				rotationMap[6] = 2;
-				rotationMap[7] = 1;
-				rotationMap[8] = 0;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-		}
-		else if (top.Equals("G"))
-		{
-			if (front.Equals("W"))
-			{
-				rotationMap[0] = 3;
-				rotationMap[1] = 4;
-				rotationMap[2] = 5;
-				rotationMap[3] = 2;
-				rotationMap[4] = 1;
-				rotationMap[5] = 0;
-				rotationMap[6] = 6;
-				rotationMap[7] = 7;
-				rotationMap[8] = 8;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-			else if (front.Equals("R"))
-			{
-				rotationMap[0] = 6;
-				rotationMap[1] = 7;
-				rotationMap[2] = 8;
-				rotationMap[3] = 2;
-				rotationMap[4] = 1;
-				rotationMap[5] = 0;
-				rotationMap[6] = 5;
-				rotationMap[7] = 4;
-				rotationMap[8] = 3;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-			else if (front.Equals("Y"))
-			{
-				rotationMap[0] = 5;
-				rotationMap[1] = 4;
-				rotationMap[2] = 3;
-				rotationMap[3] = 2;
-				rotationMap[4] = 1;
-				rotationMap[5] = 0;
-				rotationMap[6] = 8;
-				rotationMap[7] = 7;
-				rotationMap[8] = 6;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("O"))
-			{
-				rotationMap[0] = 8;
-				rotationMap[1] = 7;
-				rotationMap[2] = 6;
-				rotationMap[3] = 2;
-				rotationMap[4] = 1;
-				rotationMap[5] = 0;
-				rotationMap[6] = 3;
-				rotationMap[7] = 4;
-				rotationMap[8] = 5;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-		}
-		else if (top.Equals("R"))
-		{
-			if (front.Equals("W"))
-			{
-				rotationMap[0] = 3;
-				rotationMap[1] = 4;
-				rotationMap[2] = 5;
-				rotationMap[3] = 6;
-				rotationMap[4] = 7;
-				rotationMap[5] = 8;
-				rotationMap[6] = 0;
-				rotationMap[7] = 1;
-				rotationMap[8] = 2;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("G"))
-			{
-				rotationMap[0] = 2;
-				rotationMap[1] = 1;
-				rotationMap[2] = 0;
-				rotationMap[3] = 6;
-				rotationMap[4] = 7;
-				rotationMap[5] = 8;
-				rotationMap[6] = 3;
-				rotationMap[7] = 4;
-				rotationMap[8] = 5;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("Y"))
-			{
-				rotationMap[0] = 5;
-				rotationMap[1] = 4;
-				rotationMap[2] = 3;
-				rotationMap[3] = 6;
-				rotationMap[4] = 7;
-				rotationMap[5] = 8;
-				rotationMap[6] = 2;
-				rotationMap[7] = 1;
-				rotationMap[8] = 0;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-			else if (front.Equals("B"))
-			{
-				rotationMap[0] = 0;
-				rotationMap[1] = 1;
-				rotationMap[2] = 2;
-				rotationMap[3] = 6;
-				rotationMap[4] = 7;
-				rotationMap[5] = 8;
-				rotationMap[6] = 5;
-				rotationMap[7] = 4;
-				rotationMap[8] = 3;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = -1.0f;
-				directionMap[4] = -1.0f;
-				directionMap[5] = -1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-		}
-		else if (top.Equals("O"))
-		{
-			if (front.Equals("W"))
-			{
-				rotationMap[0] = 3;
-				rotationMap[1] = 4;
-				rotationMap[2] = 5;
-				rotationMap[3] = 8;
-				rotationMap[4] = 7;
-				rotationMap[5] = 6;
-				rotationMap[6] = 2;
-				rotationMap[7] = 1;
-				rotationMap[8] = 0;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-			else if (front.Equals("G"))
-			{
-				rotationMap[0] = 2;
-				rotationMap[1] = 1;
-				rotationMap[2] = 0;
-				rotationMap[3] = 8;
-				rotationMap[4] = 7;
-				rotationMap[5] = 6;
-				rotationMap[6] = 5;
-				rotationMap[7] = 4;
-				rotationMap[8] = 3;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = 1.0f;
-				directionMap[7] = 1.0f;
-				directionMap[8] = 1.0f;
-			}
-			else if (front.Equals("Y"))
-			{
-				rotationMap[0] = 5;
-				rotationMap[1] = 4;
-				rotationMap[2] = 3;
-				rotationMap[3] = 8;
-				rotationMap[4] = 7;
-				rotationMap[5] = 6;
-				rotationMap[6] = 0;
-				rotationMap[7] = 1;
-				rotationMap[8] = 2;
-
-				directionMap[0] = -1.0f;
-				directionMap[1] = -1.0f;
-				directionMap[2] = -1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-			else if (front.Equals("B"))
-			{
-				rotationMap[0] = 0;
-				rotationMap[1] = 1;
-				rotationMap[2] = 2;
-				rotationMap[3] = 8;
-				rotationMap[4] = 7;
-				rotationMap[5] = 6;
-				rotationMap[6] = 3;
-				rotationMap[7] = 4;
-				rotationMap[8] = 5;
-
-				directionMap[0] = 1.0f;
-				directionMap[1] = 1.0f;
-				directionMap[2] = 1.0f;
-				directionMap[3] = 1.0f;
-				directionMap[4] = 1.0f;
-				directionMap[5] = 1.0f;
-				directionMap[6] = -1.0f;
-				directionMap[7] = -1.0f;
-				directionMap[8] = -1.0f;
-			}
-		}
-
-	}
-
-	*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1612,17 +1008,6 @@ public class RubiksCube : MonoBehaviour
 		}
 
 
-
-
-
-		/*
-		for (int i = 0; i < 9; i++)
-        {
-			Transform cuby = cubyPositions[rotationPositions[index, i]];
-			cuby.parent = rotationAnchor.transform;
-		}
-		*/
-
 	}
 
 
@@ -1630,7 +1015,6 @@ public class RubiksCube : MonoBehaviour
 
 	protected void RotateAnimation()
     {
-		//rotationAnchor.transform.Rotate(currentAxis, ROTATION * direction);
 		for (int i = 0; i < 9; i++)
 			cubyPositions[rotationPositions[index, i]].RotateAround(rotationAnchor.transform.position, currentAxis, ROTATION * direction);
 		
@@ -1644,14 +1028,6 @@ public class RubiksCube : MonoBehaviour
 
 	protected void RotateEnd()
     {
-		/*
-		while (rotationAnchor.transform.childCount > 0)
-        {
-			Transform cuby = rotationAnchor.transform.GetChild(0);
-			cuby.parent = transform;
-
-		}
-		*/
 
 		UpdatePositions();
 
@@ -1683,6 +1059,7 @@ public class RubiksCube : MonoBehaviour
 			the correct translations in the array.
 		 */
 
+
 		
 		int currentPosition = 0;
 		for (int i = 2; i > -1; i--)
@@ -1691,23 +1068,10 @@ public class RubiksCube : MonoBehaviour
 			{
 				bufferPositions[currentPosition] = cubyPositions[rotationPositions[index, i + j]];
 
-
-
-
-
-
-
-
-
-
 				currentPosition++;
 			}
 		}
 		
-
-
-
-
 
 		//If we want to rotate right, the array is the reverse of what expected to
 		//left. So, we just have to reverse the order in the buffer.
@@ -1719,55 +1083,52 @@ public class RubiksCube : MonoBehaviour
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 		for (int i = 0; i < 9; i++)
         {
-			Transform cuby = cubyPositions[rotationPositions[index, i]];
-			int oldPosition = FindCuby(cubyPositions, cuby);
-			int position = cubyPositions[rotationPositions[index, bufferPositions[i]]];
+			int oldPosition = FindCuby(cubyPositions[rotationPositions[index, i]]);
+			int newPosition = FindCuby(bufferPositions[i]);
 
+			
 
-
-
-			if (IsCorner(FindCuby(cubyPositions[i])))
+			if (IsCorner(oldPosition))
             {
-				Debug.Log(cubyPositions[rotationPositions[index, oldPosition]].name);
-				Debug.Log(bufferPositions[position].name);
+				Debug.Log(cubyPositions[rotationPositions[index, i]].name + ": " + oldPosition + ", " + newPosition);
+				if (index <= 2 || index >= 6)
+                {
+					//Debug.Log(cubyPositions[rotationPositions[index, i]].name + " old: " + IsCubyOn(UP, oldPosition) + " new: " + IsCubyOn(DOWN, newPosition));
 
-
-				if (IsCubyOn(UP, oldPosition))
-				{
-					if (IsCubyOn(UP, position))
+					if (IsCubyOn(UP, oldPosition))
 					{
-						RotateCorner(cubyPositions[i], COUNTERCLOCKWISE);
+						if (IsCubyOn(DOWN, newPosition))
+						{
+							RotateCorner(bufferPositions[i], COUNTERCLOCKWISE);
+						}
+						else
+						{
+							RotateCorner(bufferPositions[i], CLOCKWISE);
+						}
 					}
 					else
 					{
-						RotateCorner(cubyPositions[i], CLOCKWISE);
-					}
-				}
-				else
-				{
-					if (IsCubyOn(UP, position))
-					{
-						RotateCorner(cubyPositions[i], CLOCKWISE);
-					}
-					else
-					{
-						RotateCorner(cubyPositions[i], COUNTERCLOCKWISE);
+						if (IsCubyOn(DOWN, newPosition))
+						{
+							RotateCorner(bufferPositions[i], CLOCKWISE);
+						}
+						else
+						{
+							RotateCorner(bufferPositions[i], COUNTERCLOCKWISE);
+						}
 					}
 				}
 			}
+			else if (IsEdge(oldPosition))
+            {
+				if (index == 1 || index == 4 || index >= 6)
+				if (index == 1 || index == 4 || index >= 6)
+                {
+					RotateEdge(bufferPositions[i]);
+                }
+            }
 			
 
 
@@ -1786,121 +1147,15 @@ public class RubiksCube : MonoBehaviour
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 		rotationAnchor.transform.SetAsLastSibling();
 
 
 
-		//Print(GetPattern());
 		Debug.Log(GetJSONPattern());
 
 
 
-
-
-
-
-		
-		/*
-		string[] bufferPattern = new string[9];
-
-
-
-		int currentPosition = 0;
-		for (int i = 2; i > -1; i--)
-		{
-			for (int j = 0; j < 7; j += 3)
-			{
-				bufferPattern[currentPosition] = currentPattern[i];
-				currentPosition += 1;
-			}
-		}
-
-
-
-
-
-
-		currentPosition = 0;
-		for (int i = 2; i > -1; i--)
-		{
-			for (int j = 0; j < 7; j += 3)
-			{
-				if (IsCorner(bufferPattern[currentPosition]))
-                {	
-					if (rotationMap[index] <= 2 || rotationMap[index] >= 6)
-                    {
-						if
-						(
-							(
-								IsCubyOn(bufferPattern, UP, bufferPattern[currentPosition]) &&
-								IsCubyOn(currentPattern, UP, currentPattern[rotationPositions[rotationMap[index], i + j]])
-							) ||
-							(
-								IsCubyOn(bufferPattern, DOWN, bufferPattern[currentPosition]) &&
-								IsCubyOn(currentPattern, DOWN, currentPattern[rotationPositions[rotationMap[index], i + j]])
-							)
-						)
-						{
-							RotateCorner(bufferPattern, bufferPattern[currentPosition], COUNTERCLOCKWISE);
-						}
-						else
-						{
-							RotateCorner(bufferPattern, bufferPattern[currentPosition], CLOCKWISE);
-						}
-					}
-					
-				}
-
-				currentPosition += 1;
-			}
-		}
-
-
-
-
-
-
-
-		//If we want to rotate right, the array is the reverse of what expected to
-		//left. So, we just have to reverse the order in the buffer.
-		if (direction * directionMap[index] == -1.0f)
-			Array.Reverse(bufferPattern);
-
-
-		
-
-
-
-
-
-
-
-		for (int i = 0; i < 9; i++)
-        {
-			currentPattern[i] = bufferPattern[i];
-			Debug.Log(currentPattern[i]);
-		}
-
-		
-		*/
-
 	}
-
-
-
-
-
 
 
 
@@ -1921,10 +1176,6 @@ public class RubiksCube : MonoBehaviour
 
 		Debug.Log(message);
     }
-
-
-
-
 
 
 
