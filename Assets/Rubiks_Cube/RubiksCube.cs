@@ -1139,6 +1139,8 @@ public class RubiksCube : MonoBehaviour
 
 
 			cubyPositions[rotationPositions[index, i]] = bufferPositions[i];
+
+			//bufferPositions[i].SetSiblingIndex();
 		}
 
 
