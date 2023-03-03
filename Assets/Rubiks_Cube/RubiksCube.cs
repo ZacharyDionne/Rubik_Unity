@@ -270,7 +270,7 @@ public class RubiksCube : MonoBehaviour
 
 		return false;
     }
-
+	
 	protected bool IsCubyOn(int[] face, int position)
     {
 		for (int i = 0; i < face.Length; i++)
@@ -281,7 +281,7 @@ public class RubiksCube : MonoBehaviour
 
 		return false;
 	}
-
+	
 
 
 
@@ -296,8 +296,6 @@ public class RubiksCube : MonoBehaviour
 
 		return cubies;
     }
-
-
 
 
 
@@ -531,9 +529,9 @@ public class RubiksCube : MonoBehaviour
 
 
 
-	public bool IsCorner(int position)
+	public bool IsCorner(Transform cuby)
 	{
-		return Array.IndexOf(CORNERS, position) != -1;
+		return Array.IndexOf(CORNERS, FindCuby(cuby)) != -1;
 	}
 
 	public bool IsCorner(string name)
@@ -551,9 +549,9 @@ public class RubiksCube : MonoBehaviour
 		return name.Length == 1;
 	}
 
-	public bool IsEdge(int position)
+	public bool IsEdge(Transform cuby)
 	{
-		return Array.IndexOf(EDGES, position) != -1;
+		return Array.IndexOf(EDGES, FindCuby(cuby)) != -1;
 	}
 
 	public bool IsEdge(string name)
@@ -879,10 +877,13 @@ public class RubiksCube : MonoBehaviour
 
 
 
-
-	public string[] GetPattern()
+	/*
+		Cette methode n'est pas securitaire a utiliser durant la rotation du cube.
+		Utilisez cubyPositions durant la rotation du cube.
+	 */
+	public Transform[] GetPattern()
     {
-		string[] pattern = new string[27];
+		Transform[] pattern = new Transform[27];
 
 		for (int i = 0; i < 27; i++)
         {
@@ -896,7 +897,7 @@ public class RubiksCube : MonoBehaviour
 
 				if (cubyPosition == worldPositions[i])
                 {
-					pattern[i] = cuby.name;
+					pattern[i] = cuby;
 					break;
                 }
             }
@@ -909,12 +910,12 @@ public class RubiksCube : MonoBehaviour
 
 	public string GetJSONPattern()
     {
-		string[] pattern = GetPattern();
+		Transform[] pattern = GetPattern();
 		string json = "[";
 
 		for (int i = 0; i < pattern.Length; i++)
         {
-			json += "\"" + pattern[i] + "\"";
+			json += "\"" + pattern[i].name + "\"";
 			if (i + 1 != pattern.Length)
             {
 				json += ",";
@@ -1017,7 +1018,9 @@ public class RubiksCube : MonoBehaviour
     {
 		for (int i = 0; i < 9; i++)
 			cubyPositions[rotationPositions[index, i]].RotateAround(rotationAnchor.transform.position, currentAxis, ROTATION * direction);
-		
+	
+			
+
 		angleCounter++;
 
 
@@ -1085,43 +1088,75 @@ public class RubiksCube : MonoBehaviour
 
 		for (int i = 0; i < 9; i++)
         {
-			int oldPosition = FindCuby(cubyPositions[rotationPositions[index, i]]);
-			int newPosition = FindCuby(bufferPositions[i]);
+			Transform cuby = cubyPositions[rotationPositions[index, i]];
+			int oldPosition = i;
+			int newPosition = Array.IndexOf(bufferPositions, cuby);
 
 			
 
-			if (IsCorner(oldPosition))
+			if (IsCorner(cuby))
             {
-				Debug.Log(cubyPositions[rotationPositions[index, i]].name + ": " + oldPosition + ", " + newPosition);
 				if (index <= 2 || index >= 6)
                 {
-					//Debug.Log(cubyPositions[rotationPositions[index, i]].name + " old: " + IsCubyOn(UP, oldPosition) + " new: " + IsCubyOn(DOWN, newPosition));
 
 					if (IsCubyOn(UP, oldPosition))
 					{
 						if (IsCubyOn(DOWN, newPosition))
 						{
-							RotateCorner(bufferPositions[i], COUNTERCLOCKWISE);
+							if (index >= 6)
+                            {
+								RotateCorner(bufferPositions[i], direction == 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
+							}
+							else
+                            {
+								RotateCorner(bufferPositions[i], direction != 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
+							}
+							
 						}
 						else
 						{
-							RotateCorner(bufferPositions[i], CLOCKWISE);
+							if (index >= 6)
+							{
+								RotateCorner(bufferPositions[i], direction != 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
+							}
+							else
+							{
+								RotateCorner(bufferPositions[i], direction == 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
+							}
+							
 						}
 					}
 					else
 					{
+
 						if (IsCubyOn(DOWN, newPosition))
 						{
-							RotateCorner(bufferPositions[i], CLOCKWISE);
+							if (index >= 6)
+							{
+								RotateCorner(bufferPositions[i], direction != 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
+							}
+							else
+							{
+								RotateCorner(bufferPositions[i], direction == 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
+							}
+							
 						}
 						else
 						{
-							RotateCorner(bufferPositions[i], COUNTERCLOCKWISE);
+							if (index >= 6)
+							{
+								RotateCorner(bufferPositions[i], direction == 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
+							}
+							else
+							{
+								RotateCorner(bufferPositions[i], direction != 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
+							}
+							
 						}
 					}
 				}
 			}
-			else if (IsEdge(oldPosition))
+			else if (IsEdge(cuby))
             {
 				if (index == 1 || index == 4 || index >= 6)
 				if (index == 1 || index == 4 || index >= 6)
@@ -1139,19 +1174,7 @@ public class RubiksCube : MonoBehaviour
 
 
 			cubyPositions[rotationPositions[index, i]] = bufferPositions[i];
-
-			//bufferPositions[i].SetSiblingIndex();
 		}
-
-
-
-
-
-
-
-		rotationAnchor.transform.SetAsLastSibling();
-
-
 
 		Debug.Log(GetJSONPattern());
 
