@@ -10,10 +10,11 @@ public class Manager : MonoBehaviour
         string[] pattern = (string[]) RubiksCube.DEFAULT_PATTERN.Clone();
 
 
+	pattern[0] = "WOB";
+	pattern[2] = "WBR";
 
 
-
-		GameObject cube = RubiksCube.GenerateCube(pattern);
+	GameObject cube = RubiksCube.GenerateCube(pattern);
 
         cube.transform.parent = transform.parent;
 

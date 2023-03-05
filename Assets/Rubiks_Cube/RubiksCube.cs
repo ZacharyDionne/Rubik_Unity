@@ -1092,86 +1092,28 @@ public class RubiksCube : MonoBehaviour
 			int oldPosition = i;
 			int newPosition = Array.IndexOf(bufferPositions, cuby);
 
-			
 
 			if (IsCorner(cuby))
-            {
+            		{
 				if (index <= 2 || index >= 6)
-                {
+				{
+					bool a = index == 0 || index == 8;
+					bool b = direction == 1.0f;
+					bool c = IsCubyOn(UP, oldPosition);
+					bool d = IsCubyOn(UP, newPosition);
 
-					if (IsCubyOn(UP, oldPosition))
-					{
-						if (IsCubyOn(DOWN, newPosition))
-						{
-							if (index >= 6)
-                            {
-								RotateCorner(bufferPositions[i], direction == 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
-							}
-							else
-                            {
-								RotateCorner(bufferPositions[i], direction != 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
-							}
-							
-						}
-						else
-						{
-							if (index >= 6)
-							{
-								RotateCorner(bufferPositions[i], direction != 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
-							}
-							else
-							{
-								RotateCorner(bufferPositions[i], direction == 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
-							}
-							
-						}
-					}
-					else
-					{
-
-						if (IsCubyOn(DOWN, newPosition))
-						{
-							if (index >= 6)
-							{
-								RotateCorner(bufferPositions[i], direction != 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
-							}
-							else
-							{
-								RotateCorner(bufferPositions[i], direction == 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
-							}
-							
-						}
-						else
-						{
-							if (index >= 6)
-							{
-								RotateCorner(bufferPositions[i], direction == 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
-							}
-							else
-							{
-								RotateCorner(bufferPositions[i], direction != 1.0 ? CLOCKWISE : COUNTERCLOCKWISE);
-							}
-							
-						}
-					}
+					RotateCorner(bufferPositions[i], !(a != b != c != d) ? CLOCKWISE: COUNTERCLOCKWISE);
 				}
 			}
 			else if (IsEdge(cuby))
-            {
+            		{
 				if (index == 1 || index == 4 || index >= 6)
 				if (index == 1 || index == 4 || index >= 6)
-                {
+                		{
 					RotateEdge(bufferPositions[i]);
-                }
-            }
+                		}
+            		}
 			
-
-
-
-
-
-
-
 
 			cubyPositions[rotationPositions[index, i]] = bufferPositions[i];
 		}
