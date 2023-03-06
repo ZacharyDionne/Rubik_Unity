@@ -1,30 +1,32 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Manager : MonoBehaviour
 {
-    // Start is called before the first frame update
+
+
     void Start()
     {
-        string[] pattern = (string[]) RubiksCube.DEFAULT_PATTERN.Clone();
+        string[] pattern = (string[]) RubikData.DEFAULT_PATTERN.Clone();
 
 
 	pattern[0] = "WOB";
 	pattern[2] = "WBR";
 
-
-	GameObject cube = RubiksCube.GenerateCube(pattern);
-
+	RubiksCube cube = RubiksCube.GenerateCube(pattern).GetComponent<RubiksCube>();
+	cube.CubeFinishedRandomizing += OnCubeFinishedRandomizing;
         cube.transform.parent = transform.parent;
 
-
-		//cube.GetComponent<RubiksCube>().Randomize();
-
-		//cube.GetComponent<RubiksCube>().SetRotationMap(pattern);
-
-		//cube.GetComponent<RubiksCube>().Solve(RubiksCube.DEFAULT_PATTERN);
-
+	cube.Randomize();
+	
 
 	}
+
+	void OnCubeFinishedRandomizing(object sender, EventArgs e)
+	{
+		((RubiksCube) sender).Solve(RubikData.DEFAULT_PATTERN);
+	}
+
 }
