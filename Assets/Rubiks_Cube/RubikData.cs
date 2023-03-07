@@ -46,6 +46,38 @@ public class RubikData
 	public static readonly int[] EDGES = { 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25 };
 	public static readonly int[] MIDDLES = { 4, 10, 12, 14, 16, 22 };
 
+	//si longueur == 3: l'ordre est UP/DOWN, LEFT/RIGHT et FRONT/BACK
+	//si longueur == 2: l'ordre est ((UP ou DOWN)/(LEFT ou RIGHT)) ou ((LEFT ou RIGHT)/(FRONT ou BACK))
+	public static readonly int[][][] TOUCHING_FACES = {
+		new int[][]{ UP, FRONT, LEFT },
+		new int[][]{ UP, FRONT },
+		new int[][]{ UP, RIGHT, FRONT },
+		new int[][]{ LEFT, FRONT },
+		new int[][]{ FRONT },
+		new int[][]{ RIGHT, FRONT },
+		new int[][]{ DOWN, LEFT, FRONT },
+		new int[][]{ DOWN, FRONT },
+		new int[][]{ DOWN, RIGHT, FRONT },
+		new int[][]{ UP, LEFT },
+		new int[][]{ UP },
+		new int[][]{ UP, RIGHT },
+		new int[][]{ LEFT },
+		new int[][]{},
+		new int[][]{ RIGHT },
+		new int[][]{ LEFT, DOWN },
+		new int[][]{ DOWN },
+		new int[][]{ RIGHT, DOWN },
+		new int[][]{ UP, LEFT, BACK },
+		new int[][]{ UP, BACK },
+		new int[][]{ UP, RIGHT, BACK },
+		new int[][]{ LEFT, BACK },
+		new int[][]{ BACK },
+		new int[][]{ RIGHT, BACK },
+		new int[][]{ DOWN, LEFT, BACK },
+		new int[][]{ DOWN, BACK },
+		new int[][]{ DOWN, RIGHT, BACK }
+	};
+
 	public static Vector3[] worldPositions = {
 		new Vector3(2.0f, 2.0f, 2.0f),
 		new Vector3(0.0f, 2.0f, 2.0f),

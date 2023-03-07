@@ -112,11 +112,6 @@ public class RubiksCube : MonoBehaviour
 		return cubies;
     	}
 
-	protected static string[] FindCubiesWithColor(string[] pattern, string color)
-    	{
-		return Array.FindAll(pattern, (string str) => { return str.Contains(color[0]); });
-	}
-
 
 
 	/*
@@ -510,74 +505,46 @@ public class RubiksCube : MonoBehaviour
 		List<Order> orderList = new List<Order>();
 		
 
-		int counter;
-
 		//Positionnement des milieux
 		if (
-			IsCubyOn(RubikData.FRONT, FindCuby(objectivePattern[RubikData.UP[4]])) ||
-			IsCubyOn(RubikData.BACK, FindCuby(objectivePattern[RubikData.UP[4]])) ||
-			IsCubyOn(RubikData.DOWN, FindCuby(objectivePattern[RubikData.UP[4]])))
+			IsCubyOn(RubikData.FRONT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.BACK, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
 		{
-			counter = 0;
-			do
-			{
-				UpdatePositions(pattern, 7, -1.0f);
-
-
-				orderList.Add(new RotateOrder(7, -1.0f));
-				counter++;
-
-				if (counter > 3)
-					throw new Exception("counter bigger than 3");
-
-			} while (pattern[RubikData.UP[4]] != objectivePattern[RubikData.UP[4]]);
-
-			if (counter == 3)
-			{
-				orderList.RemoveAt(orderList.Count - 1);
-				orderList.RemoveAt(orderList.Count - 1);
-				orderList.RemoveAt(orderList.Count - 1);
-				orderList.Add(new RotateOrder(7, 1.0f));
-			}
+			RotateUntilEqual(7, RubikData.UP, 4, orderList, pattern, objectivePattern);
 		}
-		else if (IsCubyOn(RubikData.LEFT, FindCuby(objectivePattern[RubikData.UP[4]])))
+		else if (IsCubyOn(RubikData.LEFT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
 		{
 			UpdatePositions(pattern, 1, -1.0f);
 			orderList.Add(new RotateOrder(1, -1.0f));
 		}
-		else if (IsCubyOn(RubikData.RIGHT, FindCuby(objectivePattern[RubikData.UP[4]])))
+		else if (IsCubyOn(RubikData.RIGHT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
 		{
 			UpdatePositions(pattern, 1, 1.0f);
 			orderList.Add(new RotateOrder(1, 1.0f));
 		}
+		RotateUntilEqual(4, RubikData.FRONT, 4, orderList, pattern, objectivePattern);
 
 
 
-		/*
-		counter = 0;
-		while (pattern[RubikData.FRONT[4]] != objectivePattern[RubikData.FRONT[4]])
+		
+
+
+		//Faire la croix du dessus
+		if (IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[1])))
 		{
-			UpdatePositions(pattern, 4, 1.0f);
-			orderList.Add(new RotateOrder(1, 1.0f));
+			Debug.Log(pattern[FindCuby(pattern, objectivePattern[1])][0].ToString().Equals(objectivePattern[10]));
 
-			if (++counter > 3)
-				throw new Exception("counter bigger than 3");
+			/*
+			if (!RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[1])][0].Equals(objectivePattern[1][0].ToString()))
+			{
+
+			}
+			*/
+
+			
 		}
-
-		if (counter == 3)
-		{
-			orderList.RemoveAt(orderList.Count - 1);
-			orderList.RemoveAt(orderList.Count - 1);
-			orderList.RemoveAt(orderList.Count - 1);
-			orderList.Add(new RotateOrder(4, -1.0f));
-		}
-		*/
-
-
-
-
-
-
+		
 
 
 
@@ -597,6 +564,34 @@ public class RubiksCube : MonoBehaviour
 		currentOrder = null;
 
 	}
+
+
+
+	protected void RotateUntilEqual(int index, int[] face, int position, List<Order> orderList, string[] pattern1, string[] pattern2)
+	{
+		int counter = 0;
+		while (pattern1[face[position]] != pattern2[face[position]])
+		{
+			UpdatePositions(pattern1, index, 1.0f);
+			orderList.Add(new RotateOrder(index, 1.0f));
+
+			if (++counter > 3)
+				throw new Exception("counter bigger than 3");
+		}
+
+		if (counter == 3)
+		{
+			orderList.RemoveAt(orderList.Count - 1);
+			orderList.RemoveAt(orderList.Count - 1);
+			orderList.RemoveAt(orderList.Count - 1);
+			orderList.Add(new RotateOrder(index, -1.0f));
+		}
+	}
+
+
+
+
+
 
 
 
@@ -686,6 +681,14 @@ public class RubiksCube : MonoBehaviour
 		return false;
     	}
 
+
+	public bool IsSharingFace(int[] face, int position1, int position2)
+	{
+		return IsCubyOn(face, position1) && IsCubyOn(face, position2);
+	}
+
+
+
 	protected bool IsCorner(Transform cuby)
 	{
 		return Array.IndexOf(RubikData.CORNERS, FindCuby(cuby)) != -1;
@@ -700,11 +703,6 @@ public class RubiksCube : MonoBehaviour
 	{
 		return Array.IndexOf(RubikData.EDGES, FindCuby(cuby)) != -1;
 	}
-
-
-
-
-
 	
 
 

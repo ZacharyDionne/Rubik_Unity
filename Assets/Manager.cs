@@ -8,13 +8,13 @@ public class Manager : MonoBehaviour
 
     	void Start()
     	{
-		string[] pattern = (string[]) RubikData.DEFAULT_PATTERN.Clone();
+		string[] pattern = (string[]) RubikData.DEFAULT_PATTERN.Clone();		
 
-		pattern[14] = "G";
-		pattern [22] = "O";
+		//pattern[10] = "B";
+		//pattern[4] = "W";
 
-
-		
+		pattern[1] = "YB";
+		pattern[7] = "WB";
 
 
 		RubiksCube cube = RubiksCube.GenerateCube(pattern).GetComponent<RubiksCube>();
@@ -22,7 +22,7 @@ public class Manager : MonoBehaviour
 
 	
 		//cube.Randomize();
-		//cube.Solve(RubikData.DEFAULT_PATTERN);
+		cube.Solve(RubikData.DEFAULT_PATTERN);
 	}
 
 }
