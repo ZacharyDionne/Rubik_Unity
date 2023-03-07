@@ -40,7 +40,7 @@ public class RubikData
 	public static readonly int[] FRONT = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 	public static readonly int[] BACK = { 18, 19, 20, 21, 22, 23, 24, 25, 26 };
 	public static readonly int[] LEFT = { 0, 9, 18, 3, 12, 21, 6, 15, 24};
-	public static readonly int[] RIGHT = { 2, 11, 20, 5, 13, 23, 8, 17, 26 };
+	public static readonly int[] RIGHT = { 2, 11, 20, 5, 14, 23, 8, 17, 26 };
 
 	public static readonly int[] CORNERS = { 0, 2, 6, 8, 18, 20, 24, 26 };
 	public static readonly int[] EDGES = { 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25 };
