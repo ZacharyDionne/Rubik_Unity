@@ -232,7 +232,6 @@ public class RubiksCube : MonoBehaviour
 
 		for (int i = 0; i < bufferPositions.Length; i++)
 			pattern[RubikData.rotationPositions[index, i]] = bufferPositions[i];
-		
 	}
 
 
@@ -420,7 +419,6 @@ public class RubiksCube : MonoBehaviour
 		else if (currentOrder is RotateOrder)
 		{
 			currentOrder = null;
-			Debug.Log(this);
 		}	
 		else if (randomCounter > 0)
 			NextRandom();
@@ -508,28 +506,94 @@ public class RubiksCube : MonoBehaviour
 
 	protected void StartSolve(string[] objectivePattern)
 	{
-		string upMiddle = objectivePattern[RubikData.UP[4]];
-		string downMiddle = objectivePattern[RubikData.DOWN[4]];
-		string leftMiddle = objectivePattern[RubikData.LEFT[4]];
-		string rightMiddle = objectivePattern[RubikData.RIGHT[4]];
-		string frontMiddle = objectivePattern[RubikData.FRONT[4]];
-		string backMiddle = objectivePattern[RubikData.BACK[4]];
-
-
 		string[] pattern = (string[]) currentPattern.Clone();
+		List<Order> orderList = new List<Order>();
+		
+
+		int counter;
 
 		//Positionnement des milieux
-		int upMiddlePosition = FindCuby(upMiddle);
-		
-		
+		if (
+			IsCubyOn(RubikData.FRONT, FindCuby(objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.BACK, FindCuby(objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.DOWN, FindCuby(objectivePattern[RubikData.UP[4]])))
+		{
+			counter = 0;
+			do
+			{
+				UpdatePositions(pattern, 7, -1.0f);
 
-		UpdatePositions(pattern, 7, 1.0f);
 
-		orderQueue.Enqueue(new RotateOrder(5, -1.0f));
+				orderList.Add(new RotateOrder(7, -1.0f));
+				counter++;
 
-		foreach (var str in pattern)
-			Debug.Log(str);
-		
+				if (counter > 3)
+					throw new Exception("counter bigger than 3");
+
+			} while (pattern[RubikData.UP[4]] != objectivePattern[RubikData.UP[4]]);
+
+			if (counter == 3)
+			{
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.Add(new RotateOrder(7, 1.0f));
+			}
+		}
+		else if (IsCubyOn(RubikData.LEFT, FindCuby(objectivePattern[RubikData.UP[4]])))
+		{
+			UpdatePositions(pattern, 1, -1.0f);
+			orderList.Add(new RotateOrder(1, -1.0f));
+		}
+		else if (IsCubyOn(RubikData.RIGHT, FindCuby(objectivePattern[RubikData.UP[4]])))
+		{
+			UpdatePositions(pattern, 1, 1.0f);
+			orderList.Add(new RotateOrder(1, 1.0f));
+		}
+
+
+
+		/*
+		counter = 0;
+		while (pattern[RubikData.FRONT[4]] != objectivePattern[RubikData.FRONT[4]])
+		{
+			UpdatePositions(pattern, 4, 1.0f);
+			orderList.Add(new RotateOrder(1, 1.0f));
+
+			if (++counter > 3)
+				throw new Exception("counter bigger than 3");
+		}
+
+		if (counter == 3)
+		{
+			orderList.RemoveAt(orderList.Count - 1);
+			orderList.RemoveAt(orderList.Count - 1);
+			orderList.RemoveAt(orderList.Count - 1);
+			orderList.Add(new RotateOrder(4, -1.0f));
+		}
+		*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		foreach (Order order in orderList)
+		{
+			Debug.Log(order);
+			orderQueue.Enqueue(order);
+		}
+			
+			
+
 		currentOrder = null;
 
 	}

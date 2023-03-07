@@ -17,4 +17,11 @@ public class RotateOrder : Order
 		Direction = direction;		
 	}
 
+
+
+	public override string ToString()
+	{
+		return "RotateOrder={Index=" + Index + ", Direction=" + Direction + "}";
+	}
+
 }
