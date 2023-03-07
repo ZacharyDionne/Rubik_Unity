@@ -29,8 +29,8 @@ public class RubiksCube : MonoBehaviour
 			switch (pattern[i].Length)
             		{
 				case 1:
-					cuby.Rotate(RubikData.middlesFrame[defaultPosition] - RubikData.middlesFrame[i]);
-
+					cuby.localRotation = Quaternion.Euler(RubikData.middlesFrame[defaultPosition][i]);
+						
 					break;
 
 				case 2:

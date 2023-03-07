@@ -79,6 +79,7 @@ public class RubikData
 	public static readonly byte CLOCKWISE = 1;
 	public static readonly byte COUNTERCLOCKWISE = 2;
 
+	/*
 	public static Dictionary<int, Vector3> middlesFrame = new Dictionary<int, Vector3>()
 	{
 		{4, new Vector3(0.0f, 0.0f, 0.0f)},
@@ -87,6 +88,71 @@ public class RubikData
 		{14, new Vector3(0.0f, 0.0f, 90.0f)},
 		{16, new Vector3(-90.0f, 0.0f, 0.0f)},
 		{22, new Vector3(180.0f, 0.0f, 0.0f)}
+	};
+	*/
+
+	public static Dictionary<int, Dictionary<int, Vector3>> middlesFrame = new Dictionary<int, Dictionary<int, Vector3>>()
+	{
+		{4, new Dictionary<int, Vector3>()
+			{
+				{4, new Vector3(-90.0f, 0.0f, 0.0f)},
+				{10, new Vector3(180.0f, 0.0f, 0.0f)},
+				{12, new Vector3(0.0f, 0.0f, 90.0f)},
+				{14, new Vector3(0.0f, 0.0f, -90.0f)},
+				{16, new Vector3(0.0f, 0.0f, 0.0f)},
+				{22, new Vector3(90.0f, 0.0f, 0.0f)}
+			}
+		},
+		{10, new Dictionary<int, Vector3>()
+			{
+				{4, new Vector3(0.0f, 0.0f, 0.0f)},
+				{10, new Vector3(-90.0f, 0.0f, 0.0f)},
+				{12, new Vector3(0.0f, -90.0f, 0.0f)},
+				{14, new Vector3(0.0f, 90.0f, 0.0f)},
+				{16, new Vector3(90.0f, 0.0f, 0.0f)},
+				{22, new Vector3(0.0f, 180.0f, 0.0f)}
+			}
+		},
+		{12, new Dictionary<int, Vector3>()
+			{
+				{4, new Vector3(0.0f, -90.0f, 0.0f)},
+				{10, new Vector3(0.0f, 0.0f, 90.0f)},
+				{12, new Vector3(0.0f, 0.0f, 0.0f)},
+				{14, new Vector3(0.0f, 180.0f, 0.0f)},
+				{16, new Vector3(0.0f, 0.0f, -90.0f)},
+				{22, new Vector3(0.0f, 90.0f, 0.0f)}
+			}
+		},
+		{14, new Dictionary<int, Vector3>()
+			{
+				{4, new Vector3(0.0f, 90.0f, 0.0f)},
+				{10, new Vector3(0.0f, 0.0f, -90.0f)},
+				{12, new Vector3(0.0f, 180.0f, 0.0f)},
+				{14, new Vector3(0.0f, 0.0f, 0.0f)},
+				{16, new Vector3(0.0f, 0.0f, 90.0f)},
+				{22, new Vector3(0.0f, -90.0f, 0.0f)}
+			}
+		},
+		{16, new Dictionary<int, Vector3>()
+			{
+				{4, new Vector3(0.0f, 180.0f, 0.0f)},
+				{10, new Vector3(90.0f, 0.0f, 0.0f)},
+				{12, new Vector3(0.0f, -90.0f, 0.0f)},
+				{14, new Vector3(0.0f, 90.0f, 0.0f)},
+				{16, new Vector3(-90.0f, 0.0f, 0.0f)},
+				{22, new Vector3(0.0f, 0.0f, 0.0f)}
+			}
+		},
+		{22, new Dictionary<int, Vector3>()
+			{
+				{4, new Vector3(90.0f, 0.0f, 0.0f)},
+				{10, new Vector3(0.0f, 0.0f, 0.0f)},
+				{12, new Vector3(0.0f, 0.0f, -90.0f)},
+				{14, new Vector3(0.0f, 0.0f, 90.0f)},
+				{16, new Vector3(0.0f, 0.0f, 180.0f)},
+				{22, new Vector3(-90.0f, 0.0f, 0.0f)}
+			}
+		}
 	};
 
 	public static Dictionary<int, Vector3> edgesFrame = new Dictionary<int, Vector3>()
