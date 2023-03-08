@@ -10,20 +10,22 @@ public class Manager : MonoBehaviour
     	{
 		string[] pattern = (string[]) RubikData.DEFAULT_PATTERN.Clone();		
 
-		//pattern[10] = "B";
-		//pattern[4] = "W";
-
-		//pattern[11] = "BW";
-		//pattern[1] = "WO";
-		//pattern[7] = "WB";
+		pattern[7] = "WB";
+		pattern[1] = "YB";
+		pattern[15] = "WR";
+		pattern[9] = "YR";
+		pattern[17] = "WO";
+		pattern[11] = "YO";
+		pattern[25] = "WG";
+		pattern[19] = "YG";
 
 
 		RubiksCube cube = RubiksCube.GenerateCube(pattern).GetComponent<RubiksCube>();
         	cube.transform.parent = transform.parent;
 
 	
-		cube.Randomize();
-		cube.Solve(RubikData.DEFAULT_PATTERN);
+		//cube.Randomize();
+		//cube.Solve(RubikData.DEFAULT_PATTERN);
 	}
 
 }

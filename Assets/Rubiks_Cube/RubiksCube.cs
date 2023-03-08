@@ -34,9 +34,16 @@ public class RubiksCube : MonoBehaviour
 					break;
 
 				case 2:
+					
 					cuby.Rotate(RubikData.edgesFrame[defaultPosition] - RubikData.edgesFrame[i]);
 					cube.PhysicRotateEdge(pattern[i], cuby);
-
+					/*if (
+						defaultPosition == 9 && i == 15 ||
+						defaultPosition == 15 && i == 9 ||
+						defaultPosition == 11 && i == 17 ||
+						defaultPosition == 17 && i == 9
+						)
+					cuby.Rotate(0.0f, 180.0f, 0.0f, Space.World);*/
 					break;
 
 				case 3:
@@ -412,7 +419,6 @@ public class RubiksCube : MonoBehaviour
 		else if (currentOrder is RotateOrder)
 		{
 			currentOrder = null;
-			Debug.Log(this);
 		}	
 		else if (randomCounter > 0)
 			NextRandom();
@@ -530,27 +536,60 @@ public class RubiksCube : MonoBehaviour
 
 
 		//Faire la croix du dessus
-		foreach (int position in new int[]{ 1/*, 9, 11, 19*/ })
+		int[] topCross = { 1, 9, 11, 19 };
+		string[] topCrossRef = { pattern[1], pattern[9], pattern[11], pattern[19] };
+		for (int i = 0; i < topCross.Length; i++)
 		{
+			int position = topCross[i];
+			string cubyRef = topCrossRef[i];
+
 			if (pattern[position].Equals(objectivePattern[position]))
 				continue;
-
+			
+			//Si sur UP, descendre
 			if (IsCubyOn(RubikData.UP, FindCuby(pattern, objectivePattern[position])))
 			{
 				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]);
 				UpdatePositions(pattern, index, -1.0f);
 				orderList.Add(new RotateOrder(index, -1.0f));
+				cubyRef = pattern[RubikData.rotationPositions[index, 1]];
+			}//Si sur la face du dessus, il faut aligner les references, monter et puis mettre a jour la reference
+			else if (IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[position])))
+			{
+				int counter3 = 0;
+				for (;
+					RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1] != RubikData.TOUCHING_FACES[FindCuby(pattern, cubyRef)][1];
+					counter3++)
+				{
+					if (counter3 == 3)
+						throw new Exception("Maximum of 3 rotations reached");
+
+					UpdatePositions(pattern, 3, 1.0f);
+					orderList.Add(new RotateOrder(3, 1.0f));
+				}
+				if (counter3 == 3)
+				{
+					orderList.RemoveAt(orderList.Count - 1);
+					orderList.RemoveAt(orderList.Count - 1);
+					orderList.RemoveAt(orderList.Count - 1);
+					orderList.Add(new RotateOrder(3, -1.0f));
+				}
+				
+				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]);
+				UpdatePositions(pattern, index, 1.0f);
+				orderList.Add(new RotateOrder(index, 1.0f));
+
+				cubyRef = pattern[RubikData.rotationPositions[index, 1]];
 			}
 			
 
 
-	
+			
 			//rotate Top Until Reference On Cuby SideFace
-			string cubyRef = pattern[position];
 			int counter = 0;
 			while (
 				!(
-					RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][0].Equals(RubikData.UP) ?
+					pattern[FindCuby(pattern, objectivePattern[position])][0].ToString().Equals(objectivePattern[RubikData.UP[4]]) ?
 					RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]:
 					RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][0]
 				).Equals(RubikData.TOUCHING_FACES[FindCuby(pattern, cubyRef)][1])
@@ -560,7 +599,7 @@ public class RubiksCube : MonoBehaviour
 				orderList.Add(new RotateOrder(3, 1.0f));
 				
 				if (++counter > 3)
-					throw new Exception("counter greater than 3");
+					throw new Exception("counter greater than 3, Side");
 			}
 			
 			if (counter == 3)
@@ -572,8 +611,6 @@ public class RubiksCube : MonoBehaviour
 			}
 
 			
-			Debug.Log(cubyRef);
-			/*
 			//go up until in on UP
 			counter = 0;
 			int index2 = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, cubyRef)][1]);
@@ -583,7 +620,7 @@ public class RubiksCube : MonoBehaviour
 				orderList.Add(new RotateOrder(index2, 1.0f));
 			
 				if (++counter > 3)
-					throw new Exception("counter greater than 3");
+					throw new Exception("counter greater than 3, UP");
 			}
 			if (counter == 3)
 			{
@@ -592,7 +629,7 @@ public class RubiksCube : MonoBehaviour
 				orderList.RemoveAt(orderList.Count - 1);
 				orderList.Add(new RotateOrder(index2, -1.0f));
 			}
-			*/
+			
 		}
 
 
@@ -611,7 +648,6 @@ public class RubiksCube : MonoBehaviour
 
 		foreach (Order order in orderList)
 		{
-			Debug.Log(order);
 			orderQueue.Enqueue(order);
 		}
 			
