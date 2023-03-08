@@ -46,6 +46,18 @@ public class RubikData
 	public static readonly int[] EDGES = { 1, 3, 5, 7, 9, 11, 15, 17, 19, 21, 23, 25 };
 	public static readonly int[] MIDDLES = { 4, 10, 12, 14, 16, 22 };
 
+	public static int[][] indexFaceMap = new int[][] {
+		FRONT,
+		new int[]{},
+		BACK,
+		UP,
+		new int[]{},
+		DOWN,
+		LEFT,
+		new int[]{},
+		RIGHT
+	};
+
 	//si longueur == 3: l'ordre est UP/DOWN, LEFT/RIGHT et FRONT/BACK
 	//si longueur == 2: l'ordre est ((UP ou DOWN)/(LEFT ou RIGHT)) ou ((LEFT ou RIGHT)/(FRONT ou BACK))
 	public static readonly int[][][] TOUCHING_FACES = {

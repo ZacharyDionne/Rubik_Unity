@@ -13,15 +13,16 @@ public class Manager : MonoBehaviour
 		//pattern[10] = "B";
 		//pattern[4] = "W";
 
-		pattern[1] = "YB";
-		pattern[7] = "WB";
+		//pattern[11] = "BW";
+		//pattern[1] = "WO";
+		//pattern[7] = "WB";
 
 
 		RubiksCube cube = RubiksCube.GenerateCube(pattern).GetComponent<RubiksCube>();
         	cube.transform.parent = transform.parent;
 
 	
-		//cube.Randomize();
+		cube.Randomize();
 		cube.Solve(RubikData.DEFAULT_PATTERN);
 	}
 

@@ -378,13 +378,11 @@ public class RubiksCube : MonoBehaviour
 		{
 			if (Input.GetKeyDown(KeyCode.A))
 			{
-				direction = 1.0f;
-				RotateBegin();
+				orderQueue.Enqueue(new RotateOrder(index, 1.0f));
 			}
 			if (Input.GetKeyDown(KeyCode.D))
 			{
-				direction = -1.0f;
-				RotateBegin();
+				orderQueue.Enqueue(new RotateOrder(index, -1.0f));
 			}
 			else if (Input.GetKeyDown(KeyCode.LeftArrow))
 			{
@@ -414,6 +412,7 @@ public class RubiksCube : MonoBehaviour
 		else if (currentOrder is RotateOrder)
 		{
 			currentOrder = null;
+			Debug.Log(this);
 		}	
 		else if (randomCounter > 0)
 			NextRandom();
@@ -531,20 +530,77 @@ public class RubiksCube : MonoBehaviour
 
 
 		//Faire la croix du dessus
-		if (IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[1])))
+		foreach (int position in new int[]{ 1/*, 9, 11, 19*/ })
 		{
-			Debug.Log(pattern[FindCuby(pattern, objectivePattern[1])][0].ToString().Equals(objectivePattern[10]));
+			if (pattern[position].Equals(objectivePattern[position]))
+				continue;
 
-			/*
-			if (!RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[1])][0].Equals(objectivePattern[1][0].ToString()))
+			if (IsCubyOn(RubikData.UP, FindCuby(pattern, objectivePattern[position])))
 			{
-
+				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]);
+				UpdatePositions(pattern, index, -1.0f);
+				orderList.Add(new RotateOrder(index, -1.0f));
 			}
-			*/
+			
+
+
+	
+			//rotate Top Until Reference On Cuby SideFace
+			string cubyRef = pattern[position];
+			int counter = 0;
+			while (
+				!(
+					RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][0].Equals(RubikData.UP) ?
+					RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]:
+					RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][0]
+				).Equals(RubikData.TOUCHING_FACES[FindCuby(pattern, cubyRef)][1])
+			)
+			{
+				UpdatePositions(pattern, 3, 1.0f);
+				orderList.Add(new RotateOrder(3, 1.0f));
+				
+				if (++counter > 3)
+					throw new Exception("counter greater than 3");
+			}
+			
+			if (counter == 3)
+			{
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.Add(new RotateOrder(3, -1.0f));
+			}
 
 			
+			Debug.Log(cubyRef);
+			/*
+			//go up until in on UP
+			counter = 0;
+			int index2 = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, cubyRef)][1]);
+			while (!IsCubyOn(RubikData.UP, FindCuby(pattern, objectivePattern[position])))
+			{
+				UpdatePositions(pattern, index2, 1.0f);
+				orderList.Add(new RotateOrder(index2, 1.0f));
+			
+				if (++counter > 3)
+					throw new Exception("counter greater than 3");
+			}
+			if (counter == 3)
+			{
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.Add(new RotateOrder(index2, -1.0f));
+			}
+			*/
 		}
-		
+
+
+
+
+
+
+
 
 
 
