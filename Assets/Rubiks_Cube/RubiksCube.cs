@@ -37,13 +37,13 @@ public class RubiksCube : MonoBehaviour
 					
 					cuby.Rotate(RubikData.edgesFrame[defaultPosition] - RubikData.edgesFrame[i]);
 					cube.PhysicRotateEdge(pattern[i], cuby);
-					/*if (
+					if (
 						defaultPosition == 9 && i == 15 ||
 						defaultPosition == 15 && i == 9 ||
 						defaultPosition == 11 && i == 17 ||
-						defaultPosition == 17 && i == 9
+						defaultPosition == 17 && i == 11
 						)
-					cuby.Rotate(0.0f, 180.0f, 0.0f, Space.World);*/
+					cuby.localRotation *= Quaternion.Euler(180.0f, 180.0f, 0.0f);
 					break;
 
 				case 3:
