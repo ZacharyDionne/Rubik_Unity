@@ -37,13 +37,15 @@ public class RubiksCube : MonoBehaviour
 					
 					cuby.Rotate(RubikData.edgesFrame[defaultPosition] - RubikData.edgesFrame[i]);
 					cube.PhysicRotateEdge(pattern[i], cuby);
+			
 					if (
 						defaultPosition == 9 && i == 15 ||
 						defaultPosition == 15 && i == 9 ||
 						defaultPosition == 11 && i == 17 ||
-						defaultPosition == 17 && i == 11
-						)
+						defaultPosition == 17 && i == 11)
 					cuby.localRotation *= Quaternion.Euler(180.0f, 180.0f, 0.0f);
+
+					
 					break;
 
 				case 3:
@@ -537,11 +539,10 @@ public class RubiksCube : MonoBehaviour
 
 		//Faire la croix du dessus
 		int[] topCross = { 1, 9, 11, 19 };
-		string[] topCrossRef = { pattern[1], pattern[9], pattern[11], pattern[19] };
 		for (int i = 0; i < topCross.Length; i++)
 		{
 			int position = topCross[i];
-			string cubyRef = topCrossRef[i];
+			string cubyRef = pattern[topCross[i]];
 
 			if (pattern[position].Equals(objectivePattern[position]))
 				continue;
@@ -550,9 +551,10 @@ public class RubiksCube : MonoBehaviour
 			if (IsCubyOn(RubikData.UP, FindCuby(pattern, objectivePattern[position])))
 			{
 				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]);
+				int refPosition = FindCuby(pattern, cubyRef);
 				UpdatePositions(pattern, index, -1.0f);
 				orderList.Add(new RotateOrder(index, -1.0f));
-				cubyRef = pattern[RubikData.rotationPositions[index, 1]];
+				cubyRef = pattern[refPosition];
 			}//Si sur la face du dessus, il faut aligner les references, monter et puis mettre a jour la reference
 			else if (IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[position])))
 			{
@@ -601,7 +603,6 @@ public class RubiksCube : MonoBehaviour
 				if (++counter > 3)
 					throw new Exception("counter greater than 3, Side");
 			}
-			
 			if (counter == 3)
 			{
 				orderList.RemoveAt(orderList.Count - 1);
@@ -630,11 +631,99 @@ public class RubiksCube : MonoBehaviour
 				orderList.Add(new RotateOrder(index2, -1.0f));
 			}
 			
+
+
+			//replacer le UP pour le prochain tour
+			counter = 0;
+			while (
+				!pattern[FindCuby(pattern, objectivePattern[position])][1].ToString()
+				.Equals(
+				pattern[RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1][4]]))
+			{
+				UpdatePositions(pattern, 3, 1.0f);
+				orderList.Add(new RotateOrder(3, 1.0f));
+
+				if (++counter > 3)
+					throw new Exception("counter greater than 3 while going UP for top cross");
+			}
+			if (counter == 3)
+			{
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.Add(new RotateOrder(3, -1.0f));
+			}
 		}
 
 
 
 
+
+		//Faire la face du dessus
+		
+		foreach (int position in new int[]{ 0, 2, 18, 20 })
+		{
+			if (pattern[position].Equals(objectivePattern[position]))
+				continue;
+
+			//Si sur le dessus, descendre
+			if (IsCubyOn(RubikData.UP, FindCuby(pattern, objectivePattern[position])))
+			{Debug.Log("-----" + pattern[FindCuby(pattern, objectivePattern[position])] + " is on UP, go DOWN!------");
+				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]);
+				float firstDirection = 1.0f;Print(pattern);Debug.Log("chosen index=" + index);
+				UpdatePositions(pattern, index, 1.0f);
+				orderList.Add(new RotateOrder(index, 1.0f));
+
+				if (!IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[position])))
+				{
+					UpdatePositions(pattern, index, -1.0f);
+					UpdatePositions(pattern, index, -1.0f);
+					orderList.RemoveAt(orderList.Count - 1);
+					orderList.Add(new RotateOrder(index, -1.0f));
+					firstDirection = -1.0f;
+				}
+Print(pattern);Debug.Log("Okay, on tourne le bas!");
+				
+				//sauvegarder la face utilisé et la direction
+				int faceIndex = index;
+				float direction = 1.0f;
+				UpdatePositions(pattern, 5, 1.0f);
+				orderList.Add(new RotateOrder(5, 1.0f));
+
+				if (
+					Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][0]) == faceIndex ||
+					Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]) == faceIndex
+				)
+				{
+					UpdatePositions(pattern, 5, -1.0f);
+					UpdatePositions(pattern, 5, -1.0f);
+					orderList.RemoveAt(orderList.Count - 1);
+					orderList.Add(new RotateOrder(5, -1.0f));
+					direction = -1.0f;
+				}
+Print(pattern);Debug.Log("On remonte!");
+				//remonter la face
+				UpdatePositions(pattern, index, -firstDirection);
+				orderList.Add(new RotateOrder(index, -firstDirection));
+Print(pattern);Debug.Log("On realigne le bas!");
+				//realigner le cuby avec sa face
+				UpdatePositions(pattern, 5, -direction);
+				orderList.Add(new RotateOrder(5, -direction));
+		Print(pattern);
+			}
+			/*
+			while (il n'est psa aligner avec sa reference)
+			{
+				bouger la face du dessous
+			}
+
+			if (la face du cuby du dessus est sur le dessous)
+			{
+				reorienter
+			}
+
+			monter*/
+		}
 
 
 
@@ -1066,6 +1155,20 @@ public class RubiksCube : MonoBehaviour
 		
 	}
 
+
+	protected void Print(string[] pattern)
+	{
+		string message = "[";
+
+		for (int i = 0; i < pattern.Length; i++)
+		{
+			message += pattern[i];
+			if (i + 1 != pattern.Length)
+			message += ", ";
+		}
+
+		Debug.Log(message);
+	}
 
 
 }

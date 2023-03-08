@@ -61,7 +61,7 @@ public class RubikData
 	//si longueur == 3: l'ordre est UP/DOWN, LEFT/RIGHT et FRONT/BACK
 	//si longueur == 2: l'ordre est ((UP ou DOWN)/(LEFT ou RIGHT)) ou ((LEFT ou RIGHT)/(FRONT ou BACK))
 	public static readonly int[][][] TOUCHING_FACES = {
-		new int[][]{ UP, FRONT, LEFT },
+		new int[][]{ UP, LEFT, FRONT },
 		new int[][]{ UP, FRONT },
 		new int[][]{ UP, RIGHT, FRONT },
 		new int[][]{ LEFT, FRONT },
