@@ -119,7 +119,40 @@ public class RubikData
 		new Vector3(0.0f, -2.0f, -2.0f),
 		new Vector3(-2.0f, -2.0f, -2.0f)
 	};
-	
+
+
+	//meme protocole que celui de la couleur des cubies
+	public static readonly int[][][] colorFaceMap = new int[][][]
+	{
+		new int[][]{ UP, FRONT, LEFT },
+		new int[][]{ UP, FRONT },
+		new int[][]{ UP, RIGHT, FRONT },
+		new int[][]{ LEFT, FRONT },
+		new int[][]{ FRONT },
+		new int[][]{ RIGHT, FRONT },
+		new int[][]{ DOWN, LEFT, FRONT },
+		new int[][]{ DOWN, FRONT },
+		new int[][]{ DOWN ,FRONT, RIGHT },
+		new int[][]{ UP, LEFT },
+		new int[][]{ UP },
+		new int[][]{ UP, RIGHT },
+		new int[][]{ LEFT },
+		new int[][]{ },
+		new int[][]{ RIGHT },
+		new int[][]{ DOWN, LEFT },
+		new int[][]{ DOWN },
+		new int[][]{ DOWN, RIGHT },
+		new int[][]{ UP, LEFT, BACK },
+		new int[][]{ UP, BACK },
+		new int[][]{ UP, BACK, RIGHT },
+		new int[][]{ LEFT, BACK },
+		new int[][]{ BACK },
+		new int[][]{ RIGHT, BACK },
+		new int[][]{ DOWN, BACK, LEFT },
+		new int[][]{ DOWN, BACK },
+		new int[][]{ DOWN, RIGHT, BACK },
+	};
+
 	public static readonly byte CLOCKWISE = 1;
 	public static readonly byte COUNTERCLOCKWISE = 2;
 

@@ -182,6 +182,15 @@ public class RubiksCube : MonoBehaviour
 		return name.Length == 1;
 	}
 
+	protected int[] GetCubyFaceFromColor(string cuby, int position, char color)
+    {
+		return RubikData.colorFaceMap[position][cuby.IndexOf(color)];
+    }
+
+
+
+
+
 
 
 	
@@ -660,7 +669,6 @@ public class RubiksCube : MonoBehaviour
 
 
 		//Faire la face du dessus
-		
 		foreach (int position in new int[]{ 0, 2, 18, 20 })
 		{
 			if (pattern[position].Equals(objectivePattern[position]))
@@ -668,9 +676,9 @@ public class RubiksCube : MonoBehaviour
 
 			//Si sur le dessus, descendre
 			if (IsCubyOn(RubikData.UP, FindCuby(pattern, objectivePattern[position])))
-			{Debug.Log("-----" + pattern[FindCuby(pattern, objectivePattern[position])] + " is on UP, go DOWN!------");
+			{
 				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]);
-				float firstDirection = 1.0f;Print(pattern);Debug.Log("chosen index=" + index);
+				float firstDirection = 1.0f;
 				UpdatePositions(pattern, index, 1.0f);
 				orderList.Add(new RotateOrder(index, 1.0f));
 
@@ -682,14 +690,17 @@ public class RubiksCube : MonoBehaviour
 					orderList.Add(new RotateOrder(index, -1.0f));
 					firstDirection = -1.0f;
 				}
-Print(pattern);Debug.Log("Okay, on tourne le bas!");
+
 				
 				//sauvegarder la face utilisé et la direction
 				int faceIndex = index;
-				float direction = 1.0f;
+
+
+				//on deplace le bas
 				UpdatePositions(pattern, 5, 1.0f);
 				orderList.Add(new RotateOrder(5, 1.0f));
 
+				//correction si il se trompe de bord
 				if (
 					Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][0]) == faceIndex ||
 					Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]) == faceIndex
@@ -701,32 +712,125 @@ Print(pattern);Debug.Log("Okay, on tourne le bas!");
 					orderList.Add(new RotateOrder(5, -1.0f));
 					direction = -1.0f;
 				}
-Print(pattern);Debug.Log("On remonte!");
+
 				//remonter la face
 				UpdatePositions(pattern, index, -firstDirection);
 				orderList.Add(new RotateOrder(index, -firstDirection));
-Print(pattern);Debug.Log("On realigne le bas!");
-				//realigner le cuby avec sa face
-				UpdatePositions(pattern, 5, -direction);
-				orderList.Add(new RotateOrder(5, -direction));
-		Print(pattern);
 			}
-			/*
-			while (il n'est psa aligner avec sa reference)
+			
+
+			//Si la couleur up du cuby est sur le dessous
+			if (pattern[FindCuby(pattern, objectivePattern[position])][0].ToString().Equals(objectivePattern[RubikData.UP[4]]))
 			{
-				bouger la face du dessous
+				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1]);
+				float oldDirection = 1.0f;
+				int[][] oldFaces = RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])];
+
+				//on descend
+				UpdatePositions(pattern, index, oldDirection);
+				orderList.Add(new RotateOrder(index, oldDirection));
+
+				//Si il se trompe de bord, on retourne de l'autre bord
+				if (IsCubyOn(RubikData.UP, FindCuby(pattern, objectivePattern[position])))
+                {
+					oldDirection = -1.0f;
+					UpdatePositions(pattern, index, oldDirection);
+					UpdatePositions(pattern, index, oldDirection);
+					orderList.RemoveAt(orderList.Count - 1);
+					orderList.Add(new RotateOrder(index, oldDirection));
+				}
+
+
+				//On deplace le bas
+				UpdatePositions(pattern, 5, 1.0f);
+				orderList.Add(new RotateOrder(5, 1.0f));
+
+				//Si il se trompe de bord, on retourne de l'autre bord
+				if (IsCubyOn(oldFaces[1], FindCuby(pattern, objectivePattern[position])))
+				{
+					UpdatePositions(pattern, 5, -1.0f);
+					UpdatePositions(pattern, 5, -1.0f);
+					orderList.RemoveAt(orderList.Count - 1);
+					orderList.Add(new RotateOrder(5, -1.0f));
+				}
+
+				//on remonte la face
+				UpdatePositions(pattern, index, -oldDirection);
+				orderList.Add(new RotateOrder(index, -oldDirection));
 			}
 
-			if (la face du cuby du dessus est sur le dessous)
-			{
-				reorienter
+
+			//on realigne le cuby en vu de le monter
+			int counter = 0;
+			while (
+				!(
+					RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][1] == RubikData.TOUCHING_FACES[position][1] &&
+					RubikData.TOUCHING_FACES[FindCuby(pattern, objectivePattern[position])][2] == RubikData.TOUCHING_FACES[position][2]
+				)
+			)
+            {
+				UpdatePositions(pattern, 5, 1.0f);
+				orderList.Add(new RotateOrder(5, 1.0f));
+
+				if (++counter > 3)
+					throw new Exception("maximum 3 reached while moving down");
+			}
+			if (counter == 3)
+            {
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.Add(new RotateOrder(5, -1.0f));
 			}
 
-			monter*/
+
+
+
+			//on monte ************************ IL Y A UNE ERREUR ICI, EN ATTENTE DE LA CREATION DE LA FONCTION GetCubyColorOnface()
+			index = Array.IndexOf(RubikData.indexFaceMap, GetCubyFaceFromColor(pattern[FindCuby(pattern, objectivePattern[position])], FindCuby(pattern, objectivePattern[position]), objectivePattern[RubikData.UP[4]][0]));
+			int oldPosition = FindCuby(pattern, objectivePattern[position]);
+			direction = 1.0f;
+			//on descend
+			UpdatePositions(pattern, index, direction);
+			orderList.Add(new RotateOrder(index, direction));
+
+			//correction s'il se trompe de direction
+			if (IsCubyOn(RubikData.UP, FindCuby(pattern, objectivePattern[position])))
+            {
+				direction = -direction;
+				UpdatePositions(pattern, index, direction);
+				UpdatePositions(pattern, index, direction);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.Add(new RotateOrder(index, direction));
+			}
+
+			//on tourne le bas jusqu'a sa bonne position
+			counter = 0;
+			while (FindCuby(pattern, objectivePattern[position]) != oldPosition)
+			{
+				UpdatePositions(pattern, 5, 1.0f);
+				orderList.Add(new RotateOrder(5, 1.0f));
+
+				if (++counter > 3)
+					throw new Exception("maximum 3 reached while moving down");
+			}
+			if (counter == 3)
+			{
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.Add(new RotateOrder(5, -1.0f));
+			}
+
+			//on remonte la face
+			UpdatePositions(pattern, index, -direction);
+			orderList.Add(new RotateOrder(index, -direction));
 		}
 
 
 
+
+		//deuxieme etage
 
 
 
