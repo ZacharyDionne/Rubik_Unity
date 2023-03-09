@@ -831,7 +831,10 @@ public class RubiksCube : MonoBehaviour
 
 
 		//deuxieme etage
+		foreach (int position in new int[]{ 3, 5, 21, 23})
+		{
 
+        }
 
 
 
