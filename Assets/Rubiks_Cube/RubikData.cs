@@ -90,6 +90,16 @@ public class RubikData
 		new int[][]{ DOWN, RIGHT, BACK }
 	};
 
+	public static Dictionary<int[], int[]> opposedFace = new Dictionary<int[], int[]>()
+	{
+		{ UP , DOWN },
+		{ DOWN , UP },
+		{ LEFT , RIGHT },
+		{ RIGHT , LEFT },
+		{ FRONT , BACK },
+		{ BACK , FRONT }
+	};
+
 	public static Vector3[] worldPositions = {
 		new Vector3(2.0f, 2.0f, 2.0f),
 		new Vector3(0.0f, 2.0f, 2.0f),
