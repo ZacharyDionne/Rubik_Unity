@@ -590,7 +590,6 @@ public class RubiksCube : MonoBehaviour
 
 
 
-
 		//Positionnement des milieux
 		if (
 			IsCubyOn(RubikData.FRONT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
@@ -689,6 +688,8 @@ public class RubiksCube : MonoBehaviour
 
 			if (pattern[position].Equals(wantedCuby))
 				continue;
+
+
 
 			//Si sur le dessus
 			if (IsCubyOn(RubikData.UP, FindCuby(pattern, wantedCuby)))
@@ -790,6 +791,7 @@ public class RubiksCube : MonoBehaviour
 				directionSide2 = 1.0f;
 				directionDown = 1.0f;
 
+
 				//descendre
 				directionSide1 = RotateWith(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face1), directionSide1, () => {
 					return IsCubyOn(RubikData.DOWN, FindCuby(pattern, wantedCuby));
@@ -845,7 +847,7 @@ public class RubiksCube : MonoBehaviour
 			});
 
 
-			/*
+			
 			cubyRef = pattern[position];
 			directionSide1 = 1.0f;
 			directionSide2 = 1.0f;
@@ -853,14 +855,15 @@ public class RubiksCube : MonoBehaviour
 			face1 = GetFaceFromColor(objectivePattern, pattern[FindCuby(pattern, wantedCuby)][0].ToString());
 			face2 = GetFaceFromColor(objectivePattern, pattern[FindCuby(pattern, wantedCuby)][1].ToString());
 
-			Debug.Log($"----------------------{pattern[FindCuby(pattern, wantedCuby)]}-------------------");
-			Print(pattern);Debug.Log($"cubyRef={cubyRef}");Debug.Log("Tourne la face oppose afin que le cubyRef soit en bas");
+Debug.Log($"-----------------{cubyRef}-------------");Print<string>(pattern);Debug.Log("on tourne la face oppose");
+
 			//tourne la face de couleur oppose pour que le cubyRef (cuby ayant la place ou on veut aller) soit en bas
-			direction = RotateWith(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face1), directionSide1, () => {
+			directionSide1 = RotateWith(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face1), directionSide1, () => {
 				return IsCubyOn(RubikData.DOWN, FindCuby(pattern, cubyRef));
 			});
-			Print(pattern);
-			
+Print<string>(pattern);
+
+Debug.Log("tourne le bas afin que le cubyRef soit sur la face oppose");	
 			//tourne le bas afin que le cubyRef soit sur la face oppose
 			directionDown = RotateWith(pattern, orderList, 5, directionDown, () => {
 				return IsCubyOn(face2, FindCuby(pattern, cubyRef));
@@ -868,15 +871,18 @@ public class RubiksCube : MonoBehaviour
 
 			//remonte
 			Rotate(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face1), -directionSide1);
-
+			
 			//replace le bas
 			Rotate(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face2), -directionDown);
-
-
-			cubyRef = pattern[position];
-			//remonte le cubyRef a sa position (reutiliser du code plus haut)
 			
 
+
+
+			cubyRef = Array.Find<string>(pattern, (str) => {
+				int position = FindCuby(pattern, str);
+
+				return IsCubyOn(face1, position) && IsCubyOn(face2, position) && IsCubyOn(RubikData.DOWN, position);
+			});
 
 
 			directionSide2 = RotateWith(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face2), directionSide2, () => {
@@ -885,15 +891,14 @@ public class RubiksCube : MonoBehaviour
 
 
 			RotateWith(pattern, orderList, 5, 1.0f, () => {
-				return IsCubyOn(face1, FindCuby(pattern, cubyRef));
+				return IsCubyOn(face1, FindCuby(pattern, cubyRef)) && IsCubyOn(face2, FindCuby(pattern, cubyRef));
 			});
 
 			Rotate(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face2), -directionSide2);
 			
-			*/
+			break;
         }
 		
-
 
 
 
@@ -1297,7 +1302,7 @@ public class RubiksCube : MonoBehaviour
 	}
 
 
-	protected void Print(string[] pattern)
+	protected void Print<T>(T[] pattern)
 	{
 		string message = "[";
 
