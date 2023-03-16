@@ -17,6 +17,6 @@ public class Manager : MonoBehaviour
 	
 			cube.Randomize();
 			cube.Solve(RubikData.DEFAULT_PATTERN);
-		}
+	}
 
 }

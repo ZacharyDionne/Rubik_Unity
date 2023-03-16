@@ -895,9 +895,62 @@ public class RubiksCube : MonoBehaviour
 			});
 
 			Rotate(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face2), -directionSide2);
-        }
+        	}
 		
 
+
+
+		//Faire la croix du dessous
+		//obtenir le nombre de jaune bien oriente
+		List<int> wellOriented = new List<int>();
+		foreach (int position in new int[]{ 7, 15, 17, 25 })
+		{
+			if (pattern[position][0].ToString().Equals(objectivePattern[RubikData.DOWN[4]]))
+				wellOriented.Add(position);
+		}
+
+		switch (wellOriented.Count)
+		{
+			case 0:
+				Debug.Log("Aucun n'est bien oriente");
+
+				const int F = 0, R = 6, U = 5;
+
+
+				//Rotate(pattern, orderList, F, -(1.0f));
+				//Rotate(pattern, orderList, U, 1.0f);
+				//Rotate(pattern, orderList, R, -(1.0f));
+				//Rotate(pattern, orderList, U, -1.0f);
+				//Rotate(pattern, orderList, R, -(-1.0f));
+				//Rotate(pattern, orderList, F, -(-1.0f));
+
+				//Rotate(pattern, orderList, U, -1.0f);
+
+				//Rotate(pattern, orderList, F, -(1.0f));
+				//Rotate(pattern, orderList, R, -(1.0f));
+				//Rotate(pattern, orderList, U, 1.0f);
+				//Rotate(pattern, orderList, R, -(-1.0f));
+				//Rotate(pattern, orderList, U, -1.0f);
+				//Rotate(pattern, orderList, F, -(-1.0f));
+
+				break;
+
+			case 2:
+				if (RubikData.opposedFace[RubikData.TOUCHING_FACES[wellOriented[0]][1]] == RubikData.TOUCHING_FACES[wellOriented[1]][1])
+				{
+					Debug.Log("ligne");
+				}
+				else
+				{
+					Debug.Log("L");
+				}			
+
+				break;
+			
+			default:
+				Debug.Log("Deja fait");
+				break;
+		}
 
 
 
