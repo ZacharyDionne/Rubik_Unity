@@ -916,22 +916,28 @@ public class RubiksCube : MonoBehaviour
 
 				const int F = 0, R = 6, U = 5;
 
+Print<string>(pattern);Debug.Log("F");
+				Rotate(pattern, orderList, F, -1.0f);
+Print<string>(pattern);Debug.Log("U");
+				Rotate(pattern, orderList, U, 1.0f);
+Print<string>(pattern);Debug.Log("R");
+				Rotate(pattern, orderList, R, -1.0f);
+Print<string>(pattern);Debug.Log("-U");
+				Rotate(pattern, orderList, U, -(1.0f));
+Print<string>(pattern);Debug.Log("-R");
+				Rotate(pattern, orderList, R, -(-1.0f));
+Print<string>(pattern);Debug.Log("-F");
+				Rotate(pattern, orderList, F, -(-1.0f));
+Print<string>(pattern);
 
-				//Rotate(pattern, orderList, F, -(1.0f));
-				//Rotate(pattern, orderList, U, 1.0f);
-				//Rotate(pattern, orderList, R, -(1.0f));
-				//Rotate(pattern, orderList, U, -1.0f);
-				//Rotate(pattern, orderList, R, -(-1.0f));
-				//Rotate(pattern, orderList, F, -(-1.0f));
+				Rotate(pattern, orderList, U, 1.0f);
 
-				//Rotate(pattern, orderList, U, -1.0f);
-
-				//Rotate(pattern, orderList, F, -(1.0f));
-				//Rotate(pattern, orderList, R, -(1.0f));
-				//Rotate(pattern, orderList, U, 1.0f);
-				//Rotate(pattern, orderList, R, -(-1.0f));
-				//Rotate(pattern, orderList, U, -1.0f);
-				//Rotate(pattern, orderList, F, -(-1.0f));
+				Rotate(pattern, orderList, F, -1.0f);
+				Rotate(pattern, orderList, R, -1.0f);
+				Rotate(pattern, orderList, U, 1.0f);
+				Rotate(pattern, orderList, R, -(-1.0f));
+				Rotate(pattern, orderList, U, -(1.0f));
+				Rotate(pattern, orderList, F, -(-1.0f));
 
 				break;
 
