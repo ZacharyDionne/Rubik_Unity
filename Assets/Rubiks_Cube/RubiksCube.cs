@@ -346,7 +346,7 @@ public class RubiksCube : MonoBehaviour
 
 	//variables pour l'animation de rotation
 	protected int angleCounter;
-	protected const float ROTATION_SLOWNESS = 30.0f;
+	protected const float ROTATION_SLOWNESS = 10.0f;
 	protected const float ROTATION = 180.0f / ROTATION_SLOWNESS;
 	protected const float ROTATION_STEP = ROTATION_SLOWNESS / 2.0f;
 
@@ -909,26 +909,23 @@ public class RubiksCube : MonoBehaviour
 				wellOriented.Add(position);
 		}
 
+
+		int F, R, U;
 		switch (wellOriented.Count)
 		{
 			case 0:
 				Debug.Log("Aucun n'est bien oriente");
 
-				const int F = 0, R = 6, U = 5;
+				F = 0;
+				R = 8;
+				U = 5;
 
-Print<string>(pattern);Debug.Log("F");
 				Rotate(pattern, orderList, F, -1.0f);
-Print<string>(pattern);Debug.Log("U");
-				Rotate(pattern, orderList, U, 1.0f);
-Print<string>(pattern);Debug.Log("R");
+				/*Rotate(pattern, orderList, U, 1.0f);
 				Rotate(pattern, orderList, R, -1.0f);
-Print<string>(pattern);Debug.Log("-U");
 				Rotate(pattern, orderList, U, -(1.0f));
-Print<string>(pattern);Debug.Log("-R");
 				Rotate(pattern, orderList, R, -(-1.0f));
-Print<string>(pattern);Debug.Log("-F");
 				Rotate(pattern, orderList, F, -(-1.0f));
-Print<string>(pattern);
 
 				Rotate(pattern, orderList, U, 1.0f);
 
@@ -937,7 +934,7 @@ Print<string>(pattern);
 				Rotate(pattern, orderList, U, 1.0f);
 				Rotate(pattern, orderList, R, -(-1.0f));
 				Rotate(pattern, orderList, U, -(1.0f));
-				Rotate(pattern, orderList, F, -(-1.0f));
+				Rotate(pattern, orderList, F, -(-1.0f));*/
 
 				break;
 
@@ -945,6 +942,27 @@ Print<string>(pattern);
 				if (RubikData.opposedFace[RubikData.TOUCHING_FACES[wellOriented[0]][1]] == RubikData.TOUCHING_FACES[wellOriented[1]][1])
 				{
 					Debug.Log("ligne");
+
+					if (wellOriented[0] == 7 || wellOriented[0] == 25)
+					{
+						F = 6;
+						R = 0;
+						U = 5;
+					}
+					else
+					{
+						F = 0;
+						R = 8;
+						U = 5;
+					}
+
+
+					Rotate(pattern, orderList, F, -1.0f);
+					Rotate(pattern, orderList, R, -1.0f);
+					Rotate(pattern, orderList, U, 1.0f);
+					Rotate(pattern, orderList, R, -(-1.0f));
+					Rotate(pattern, orderList, U, -(1.0f));
+					Rotate(pattern, orderList, F, -(-1.0f));
 				}
 				else
 				{
