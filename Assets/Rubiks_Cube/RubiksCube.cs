@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Unity.Jobs;
 
 
 
@@ -18,7 +18,8 @@ public class RubiksCube : MonoBehaviour
 	{
 		RubiksCube cube = Instantiate(Resources.Load<GameObject>("Rubik's Cube")).GetComponent<RubiksCube>();
 		cube.currentPattern = pattern;
-
+		cubeList.Add(cube);
+		cube.Id = cubeCounter++;
 
 		for (int i = 0; i < RubikData.DEFAULT_PATTERN.Length; i++)
         	{
@@ -138,7 +139,7 @@ public class RubiksCube : MonoBehaviour
 			cuby.name = cuby.name[1].ToString() + cuby.name[2].ToString() + cuby.name[0].ToString();
 	}
 
-	protected static string RotateCorner(string cuby, byte orientation)
+	public static string RotateCorner(string cuby, byte orientation)
 	{
 		if (orientation == RubikData.CLOCKWISE)
 			return cuby[2].ToString() + cuby[0].ToString() + cuby[1].ToString();
@@ -152,7 +153,7 @@ public class RubiksCube : MonoBehaviour
 		cuby.name = cuby.name[1].ToString() + cuby.name[0].ToString();
 	}
 
-	protected static string RotateEdge(string cuby)
+	public static string RotateEdge(string cuby)
 	{
 		return cuby[1].ToString() + cuby[0].ToString();
 	}
@@ -160,7 +161,7 @@ public class RubiksCube : MonoBehaviour
 
 
 
-	protected static bool IsCubyOn(int[] face, int position)
+	public static bool IsCubyOn(int[] face, int position)
     	{
 		for (int i = 0; i < face.Length; i++)
 		{
@@ -171,17 +172,17 @@ public class RubiksCube : MonoBehaviour
 		return false;
 	}
 
-	protected static bool IsCorner(string name)
+	public static bool IsCorner(string name)
 	{
 		return name.Length == 3;
 	}
 	
-	protected static bool IsEdge(string name)
+	public static bool IsEdge(string name)
 	{
 		return name.Length == 2;
 	}
 
-	protected static bool IsMiddle(string name)
+	public static bool IsMiddle(string name)
 	{
 		return name.Length == 1;
 	}
@@ -273,7 +274,7 @@ public class RubiksCube : MonoBehaviour
 	}
 
 
-	protected static void Rotate(string[] pattern, List<Order> orderList, int index, float direction)
+	public static void Rotate(string[] pattern, List<Order> orderList, int index, float direction)
     {
 		UpdatePositions(pattern, index, direction);
 		orderList.Add(new RotateOrder(index, direction));
@@ -329,12 +330,16 @@ public class RubiksCube : MonoBehaviour
 
 
 
+	//-------------------PRIVATE STATIC ATTRIBUTS----------------------//
+	private static int cubeCounter = 0;
 
 
-
+	//-------------------PROTECTED STATIC ATTRIBUTS----------------------//
+	protected static List<RubiksCube> cubeList = new List<RubiksCube>();
+	
 
 	//-------------------PUBLIC ATTRIBUTS---------------------------//
-
+	public int Id { get; private set; }
 
 
 
@@ -346,7 +351,7 @@ public class RubiksCube : MonoBehaviour
 
 	//variables pour l'animation de rotation
 	protected int angleCounter;
-	protected const float ROTATION_SLOWNESS = 10.0f;
+	protected const float ROTATION_SLOWNESS = 30.0f;
 	protected const float ROTATION = 180.0f / ROTATION_SLOWNESS;
 	protected const float ROTATION_STEP = ROTATION_SLOWNESS / 2.0f;
 
@@ -365,7 +370,7 @@ public class RubiksCube : MonoBehaviour
 	protected float lastDirection;
 
 	//Queue des actions que le cube doit faire
-	protected Queue<Order> orderQueue;
+	public Queue<Order> OrderQueue { get; private set; }
 	protected Order currentOrder;
 	
 
@@ -408,13 +413,13 @@ public class RubiksCube : MonoBehaviour
 
 	public void Rotate(int index, float direction)
 	{
-		orderQueue.Enqueue(new RotateOrder(index, direction));
+		OrderQueue.Enqueue(new RotateOrder(index, direction));
 	}
 
 
     	public void Solve(string[] objectivePattern)
     	{
-		orderQueue.Enqueue(new SolveOrder(objectivePattern));
+		OrderQueue.Enqueue(new SolveOrder(objectivePattern));
 	}
 
 	
@@ -440,7 +445,7 @@ public class RubiksCube : MonoBehaviour
 
 	public void Randomize()
     	{
-		orderQueue.Enqueue(new RandomizeOrder());
+		OrderQueue.Enqueue(new RandomizeOrder());
 	}
 
 
@@ -462,11 +467,11 @@ public class RubiksCube : MonoBehaviour
 		{
 			if (Input.GetKeyDown(KeyCode.A))
 			{
-				orderQueue.Enqueue(new RotateOrder(index, 1.0f));
+				OrderQueue.Enqueue(new RotateOrder(index, 1.0f));
 			}
 			if (Input.GetKeyDown(KeyCode.D))
 			{
-				orderQueue.Enqueue(new RotateOrder(index, -1.0f));
+				OrderQueue.Enqueue(new RotateOrder(index, -1.0f));
 			}
 			else if (Input.GetKeyDown(KeyCode.LeftArrow))
 			{
@@ -527,7 +532,7 @@ public class RubiksCube : MonoBehaviour
 		bufferPositions = new Transform[9];
 		random = new System.Random();
 		cubyPositions = new Transform[27];
-		orderQueue = new Queue<Order>();
+		OrderQueue = new Queue<Order>();
 	}
 
 
@@ -541,10 +546,10 @@ public class RubiksCube : MonoBehaviour
 
 	protected void NextOrder()
 	{
-		if (currentOrder != null || orderQueue.Count == 0)
+		if (currentOrder != null || OrderQueue.Count == 0)
 			return;
 
-		currentOrder = orderQueue.Dequeue();
+		currentOrder = OrderQueue.Dequeue();
 
 		if (currentOrder is RandomizeOrder)
 		{
@@ -563,7 +568,7 @@ public class RubiksCube : MonoBehaviour
 		{
 			SolveOrder solveOrder = (SolveOrder) currentOrder;
 
-			StartSolve(solveOrder.Pattern);
+			TestSolve(solveOrder.Pattern);//StartSolve(solveOrder.Pattern);
 		}
 	}
 
@@ -917,24 +922,24 @@ public class RubiksCube : MonoBehaviour
 				Debug.Log("Aucun n'est bien oriente");
 
 				F = 0;
-				R = 8;
+				R = 6;
 				U = 5;
+			
+				Rotate(pattern, orderList, F, -1.0f);
+				Rotate(pattern, orderList, U, 1.0f);
+				Rotate(pattern, orderList, R, 1.0f);
+				Rotate(pattern, orderList, U, -1.0f);
+				Rotate(pattern, orderList, R, -1.0f);
+				Rotate(pattern, orderList, F, 1.0f);
+
+				Rotate(pattern, orderList, U, -1.0f);
 
 				Rotate(pattern, orderList, F, -1.0f);
-				/*Rotate(pattern, orderList, U, 1.0f);
-				Rotate(pattern, orderList, R, -1.0f);
-				Rotate(pattern, orderList, U, -(1.0f));
-				Rotate(pattern, orderList, R, -(-1.0f));
-				Rotate(pattern, orderList, F, -(-1.0f));
-
+				Rotate(pattern, orderList, R, 1.0f);
 				Rotate(pattern, orderList, U, 1.0f);
-
-				Rotate(pattern, orderList, F, -1.0f);
 				Rotate(pattern, orderList, R, -1.0f);
-				Rotate(pattern, orderList, U, 1.0f);
-				Rotate(pattern, orderList, R, -(-1.0f));
-				Rotate(pattern, orderList, U, -(1.0f));
-				Rotate(pattern, orderList, F, -(-1.0f));*/
+				Rotate(pattern, orderList, U, -1.0f);
+				Rotate(pattern, orderList, F, 1.0f);
 
 				break;
 
@@ -946,23 +951,23 @@ public class RubiksCube : MonoBehaviour
 					if (wellOriented[0] == 7 || wellOriented[0] == 25)
 					{
 						F = 6;
-						R = 0;
+						R = 2;Debug.Log("cas 1");
 						U = 5;
 					}
 					else
 					{
 						F = 0;
-						R = 8;
+						R = 6;Debug.Log("cas 2");
 						U = 5;
 					}
 
-
-					Rotate(pattern, orderList, F, -1.0f);
-					Rotate(pattern, orderList, R, -1.0f);
-					Rotate(pattern, orderList, U, 1.0f);
-					Rotate(pattern, orderList, R, -(-1.0f));
-					Rotate(pattern, orderList, U, -(1.0f));
-					Rotate(pattern, orderList, F, -(-1.0f));
+Print<string>(pattern);Debug.Log("F");
+					Rotate(pattern, orderList, F, -1.0f);Print<string>(pattern);Debug.Log("R");
+					Rotate(pattern, orderList, R, 1.0f);Print<string>(pattern);Debug.Log("U");
+					Rotate(pattern, orderList, U, 1.0f);Print<string>(pattern);Debug.Log("-R");
+					Rotate(pattern, orderList, R, -1.0f);Print<string>(pattern);Debug.Log("-U");
+					Rotate(pattern, orderList, U, -1.0f);Print<string>(pattern);Debug.Log("-F");
+					Rotate(pattern, orderList, F, 1.0f);Print<string>(pattern);
 				}
 				else
 				{
@@ -981,7 +986,7 @@ public class RubiksCube : MonoBehaviour
 
 		foreach (Order order in orderList)
 		{
-			orderQueue.Enqueue(order);
+			OrderQueue.Enqueue(order);
 		}
 			
 			
@@ -989,6 +994,261 @@ public class RubiksCube : MonoBehaviour
 		currentOrder = null;
 
 	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public void TestSolve(string[] objectivePattern)
+	{
+		List<Order> orderList = new List<Order>();
+		string[] pattern = (string[]) currentPattern.Clone();
+		string[] objectivePatternClone = (string[]) objectivePattern.Clone();
+
+
+
+
+
+		DateTime beginTime = DateTime.Now, finishTime;
+
+
+
+
+		//Positionnement des milieux
+		if (
+			IsCubyOn(RubikData.FRONT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.BACK, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
+		{
+			RotateUntil(pattern, orderList, 7, 1.0f, () => {
+				return pattern[RubikData.UP[4]] == objectivePattern[RubikData.UP[4]];
+			});
+		}
+		else if (IsCubyOn(RubikData.LEFT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
+		{
+			Rotate(pattern, orderList, 1, -1.0f);
+		}
+		else if (IsCubyOn(RubikData.RIGHT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
+		{
+			Rotate(pattern, orderList, 1, 1.0f);
+		}
+		RotateUntil(pattern, orderList, 4, 1.0f, () => {
+			return pattern[RubikData.FRONT[4]] == objectivePattern[RubikData.FRONT[4]];
+		});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+		
+
+
+		/*
+
+		//transform to json th pattern arrays
+		string strPattern = "{\"Pattern\":[";
+		for (int i = 0; i < pattern.Length; i++)
+		{
+			strPattern += "\"" + pattern[0] + "\"";
+			if (i + 1 != pattern.Length)
+			strPattern += ",";
+		}
+		strPattern += "]}";
+
+		string strObjectivePattern = "{\"Pattern\":[";
+		for (int i = 0; i < objectivePattern.Length; i++)
+		{
+			strObjectivePattern += "\"" + objectivePattern[0] + "\"";
+			if (i + 1 != objectivePattern.Length)
+			strObjectivePattern += ",";
+		}
+		strObjectivePattern += "]}";
+		
+		SolveJob job = new SolveJob(strPattern, strObjectivePattern, Id);
+		JobHandle handle = job.Schedule();
+
+
+
+		*/
+
+
+
+
+
+
+
+		Execute(objectivePatternClone, pattern, orderList, (result) => {
+			finishTime = DateTime.Now;
+			TimeSpan chrono = new TimeSpan(finishTime.Ticks - beginTime.Ticks);
+			Debug.Log(chrono.TotalSeconds);
+
+			if (result == null)
+				Debug.Log("introuvable");
+			else
+			{
+				foreach (Order order in orderList)
+				{
+					OrderQueue.Enqueue(order);
+					Debug.Log(order);
+				}
+			}
+
+			currentOrder = null;
+		});
+
+
+		/*
+		for (int counter = 0; counter <= 20; counter++)
+		{
+			if (Search(objectivePattern, pattern, orderList, counter))
+			{
+				Debug.Log("solution trouvée");
+
+				foreach (Order order in orderList)
+				{
+					OrderQueue.Enqueue(order);
+					Debug.Log(order);
+				}
+
+				goto END;
+			}
+		}
+
+		Debug.Log("solution introuvable");
+
+		END:
+		currentOrder = null;
+		*/
+	}
+
+	private bool Search(string[] objectivePattern, string[] pattern, List<Order> orderList, int counter, int previousIndex, float previousDirection, bool repetition)
+	{
+		if (counter == 0)
+		{
+			return IsPatternFound(objectivePattern, pattern);
+		}
+
+		counter--;
+
+		foreach (int index in new int[]{ 0, 2, 3, 5, 6, 8 })
+		{
+			for (float direction = -1.0f; direction <= 1.0f; direction += 2.0f)
+			{
+				bool repetitionArg = false;
+	
+
+				if (index == previousIndex)
+				{
+					if (direction == previousDirection)
+					{
+						if (repetition)
+							continue;
+
+						repetitionArg = true;
+					}
+					else
+					{
+						continue;
+					}
+				}
+
+				
+
+
+				Rotate(pattern, orderList, index, direction);
+				
+				if (Search(objectivePattern, pattern, orderList, counter, index, direction, repetitionArg))
+					return true;
+
+				Rotate(pattern, orderList, index, -direction);
+				orderList.RemoveAt(orderList.Count - 1);
+				orderList.RemoveAt(orderList.Count - 1);
+			}
+		}
+
+		return false;
+	}
+
+	private static bool IsPatternFound(string[] objectivePattern, string[] pattern)
+	{
+		bool isEqual = true;
+		
+		for (int i = 0; i < objectivePattern.Length; i++)
+		{
+			if (!objectivePattern[i].Equals(pattern[i]))
+			{
+				isEqual = false;
+				break;
+			}
+		}
+
+		return isEqual;
+	}
+	/*
+	protected void Execute(string[] objectivePattern, string[] pattern, List<Order> orderList, Action<List<Order>> callback)
+	{
+		for (int counter = 0; counter <= 15; counter++)
+		{
+			if (Search(objectivePattern, pattern, orderList, counter, -10, -10.0f, false))
+			{
+				callback(orderList);
+				return;
+			}
+		}
+
+		callback(null);
+		return;
+	}*/
+
+	
+	public static void FinalizeSolve(List<Order> orderList, int id)
+	{
+		Queue<Order> orderQueue = null;
+
+		RubiksCube cube = cubeList.Find((cube) => { return cube.Id == id; });
+
+		orderQueue = cube.OrderQueue;
+
+		if (orderList == null)
+			Debug.Log("introuvable");
+		else
+		{
+			foreach (Order order in orderList)
+			{
+				orderQueue.Enqueue(order);
+				Debug.Log(order);
+			}
+		}
+			
+		cube.currentOrder = null;
+	}
+
+
+
+
+
+
+
 
 
 
