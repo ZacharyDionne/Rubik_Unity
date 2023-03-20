@@ -351,7 +351,7 @@ public class RubiksCube : MonoBehaviour
 
 	//variables pour l'animation de rotation
 	protected int angleCounter;
-	protected const float ROTATION_SLOWNESS = 30.0f;
+	protected const float ROTATION_SLOWNESS = 10.0f;
 	protected const float ROTATION = 180.0f / ROTATION_SLOWNESS;
 	protected const float ROTATION_STEP = ROTATION_SLOWNESS / 2.0f;
 
@@ -417,8 +417,8 @@ public class RubiksCube : MonoBehaviour
 	}
 
 
-    	public void Solve(string[] objectivePattern)
-    	{
+    public void Solve(string[] objectivePattern)
+    {
 		OrderQueue.Enqueue(new SolveOrder(objectivePattern));
 	}
 
@@ -444,7 +444,7 @@ public class RubiksCube : MonoBehaviour
 
 
 	public void Randomize()
-    	{
+    {
 		OrderQueue.Enqueue(new RandomizeOrder());
 	}
 
@@ -523,8 +523,8 @@ public class RubiksCube : MonoBehaviour
 	}
 
 
-    	void Awake()
-    	{
+    void Awake()
+    {
 		isRotating = false;
 		index = 0;
 		randomCounter = -1;
@@ -586,9 +586,8 @@ public class RubiksCube : MonoBehaviour
 		NextRandom();
 	}
 
-	protected List<Order> StartSolve(string[] objectivePattern)
+	protected List<Order> StartSolve(string[] pattern, string[] objectivePattern)
 	{
-		string[] pattern = (string[]) currentPattern.Clone();
 		List<Order> orderList = new List<Order>();
 
 
@@ -881,38 +880,48 @@ public class RubiksCube : MonoBehaviour
 		//Faire la croix du dessous
 		//obtenir le nombre de jaune bien oriente
 		List<int> wellOriented = new List<int>();
+
+
+
+		//Definition des fonctions locales. Ces fonctions seront utiles uniquement ici,
+		//alors on les declare a l'interieur. Ils ont les noms qui est donnee a ces sequences
+		//de mouvement. Voir le livrable.
+		void Fururf (int f, int r) {
+
+			Rotate(pattern, orderList, f, RubikData.DIRECTION_CORRECTION[f]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, f, -RubikData.DIRECTION_CORRECTION[f]);
+
+		};
+		void Fruruf(int f, int r) {
+
+			Rotate(pattern, orderList, f, RubikData.DIRECTION_CORRECTION[f]);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, f, -RubikData.DIRECTION_CORRECTION[f]);
+
+		};
+
+
 		foreach (int position in new int[]{ 7, 15, 17, 25 })
 		{
 			if (pattern[position][0].ToString().Equals(objectivePattern[RubikData.DOWN[4]]))
 				wellOriented.Add(position);
 		}
 
-
-		int F, R, U;
 		switch (wellOriented.Count)
 		{
 			case 0:
 				Debug.Log("Aucun n'est bien oriente");
 
-				F = 0;
-				R = 6;
-				U = 5;
-			
-				Rotate(pattern, orderList, F, -1.0f);
-				Rotate(pattern, orderList, U, 1.0f);
-				Rotate(pattern, orderList, R, 1.0f);
-				Rotate(pattern, orderList, U, -1.0f);
-				Rotate(pattern, orderList, R, -1.0f);
-				Rotate(pattern, orderList, F, 1.0f);
-
-				Rotate(pattern, orderList, U, -1.0f);
-
-				Rotate(pattern, orderList, F, -1.0f);
-				Rotate(pattern, orderList, R, 1.0f);
-				Rotate(pattern, orderList, U, 1.0f);
-				Rotate(pattern, orderList, R, -1.0f);
-				Rotate(pattern, orderList, U, -1.0f);
-				Rotate(pattern, orderList, F, 1.0f);
+				Fururf(0, 6);
+				Rotate(pattern, orderList, 5, -1.0f);
+				Fruruf(0, 6);
 
 				break;
 
@@ -923,28 +932,56 @@ public class RubiksCube : MonoBehaviour
 
 					if (wellOriented[0] == 7 || wellOriented[0] == 25)
 					{
-						F = 6;
-						R = 2;Debug.Log("cas 1");
-						U = 5;
+						Debug.Log("cas 1");
+
+						Fruruf(6, 2);
 					}
 					else
 					{
-						F = 0;
-						R = 6;Debug.Log("cas 2");
-						U = 5;
-					}
+						Debug.Log("cas 2");
 
-Print<string>(pattern);Debug.Log("F");
-					Rotate(pattern, orderList, F, -1.0f);Print<string>(pattern);Debug.Log("R");
-					Rotate(pattern, orderList, R, 1.0f);Print<string>(pattern);Debug.Log("U");
-					Rotate(pattern, orderList, U, 1.0f);Print<string>(pattern);Debug.Log("-R");
-					Rotate(pattern, orderList, R, -1.0f);Print<string>(pattern);Debug.Log("-U");
-					Rotate(pattern, orderList, U, -1.0f);Print<string>(pattern);Debug.Log("-F");
-					Rotate(pattern, orderList, F, 1.0f);Print<string>(pattern);
+						Fruruf(0, 6);
+					}
 				}
 				else
 				{
 					Debug.Log("L");
+
+					if (
+						(wellOriented[0] == 25 || wellOriented[1] == 25) &&
+						(wellOriented[0] == 15 || wellOriented[1] == 15)
+						)
+                    {
+						Debug.Log("cas 1");
+
+						Fururf(8, 0);
+
+
+					}
+					else if (
+						(wellOriented[0] == 15 || wellOriented[1] == 15) &&
+						(wellOriented[0] == 7 || wellOriented[1] == 7)
+						)
+                    {
+						Debug.Log("cas 2");
+
+						Fururf(2, 8);
+					}
+					else if (
+						(wellOriented[0] == 7 || wellOriented[1] == 7) &&
+						(wellOriented[0] == 17 || wellOriented[1] == 17)
+						)
+					{
+						Debug.Log("cas 3");
+
+						Fururf(6, 2);
+					}
+					else
+					{
+						Debug.Log("cas 4");
+
+						Fururf(0, 6);
+					}
 				}			
 
 				break;
@@ -953,6 +990,11 @@ Print<string>(pattern);Debug.Log("F");
 				Debug.Log("Deja fait");
 				break;
 		}
+
+
+
+
+		//bien placer la croix
 
 
 
@@ -980,7 +1022,6 @@ Print<string>(pattern);Debug.Log("F");
 	{
 		List<Order> orderList = new List<Order>();
 		string[] pattern = (string[]) currentPattern.Clone();
-		string[] objectivePatternClone = (string[]) objectivePattern.Clone();
 
 
 
@@ -1017,7 +1058,7 @@ Print<string>(pattern);Debug.Log("F");
 
 
 
-		Execute(objectivePatternClone, pattern, orderList, (result) => {
+		Execute(objectivePattern, (string[]) pattern.Clone(), (result) => {
 			finishTime = DateTime.Now;
 			TimeSpan chrono = new TimeSpan(finishTime.Ticks - beginTime.Ticks);
 			Debug.Log(chrono.TotalSeconds);
@@ -1025,7 +1066,7 @@ Print<string>(pattern);Debug.Log("F");
 			if (result == null)
 			{
 				Debug.Log("Speed boost not successful");
-				result = StartSolve(objectivePattern);
+				result = StartSolve(pattern, objectivePattern);
 
 				if (result == null)
 				{
@@ -1033,6 +1074,11 @@ Print<string>(pattern);Debug.Log("F");
 					goto END;
 				}
 			}
+
+			foreach (Order order in orderList)
+            {
+				OrderQueue.Enqueue(order);
+            }
 
 			foreach (Order order in result)
             {
@@ -1110,8 +1156,10 @@ Print<string>(pattern);Debug.Log("F");
 		return isEqual;
 	}
 	
-	protected void Execute(string[] objectivePattern, string[] pattern, List<Order> orderList, Action<List<Order>> callback)
+	protected void Execute(string[] objectivePattern, string[] pattern, Action<List<Order>> callback)
 	{
+		List<Order> orderList = new List<Order>();
+
 		for (int counter = 0; counter <= 5; counter++)
 		{
 			if (Search(objectivePattern, pattern, orderList, counter, -10, -10.0f, false))

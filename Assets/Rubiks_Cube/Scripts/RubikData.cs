@@ -410,4 +410,17 @@ public class RubikData
 		}
 	};
 
+
+
+	public static readonly Dictionary<int, float> DIRECTION_CORRECTION = new Dictionary<int, float>()
+	{
+		{ 0, -1.0f },
+		{ 2, 1.0f },
+		{ 3, -1.0f },
+		{ 5, 1.0f },
+		{ 6, 1.0f },
+		{ 8, -1.0f }
+	};
+
+
 }
