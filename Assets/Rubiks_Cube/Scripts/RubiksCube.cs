@@ -586,37 +586,10 @@ public class RubiksCube : MonoBehaviour
 		NextRandom();
 	}
 
-	protected void StartSolve(string[] objectivePattern)
+	protected List<Order> StartSolve(string[] objectivePattern)
 	{
 		string[] pattern = (string[]) currentPattern.Clone();
 		List<Order> orderList = new List<Order>();
-
-
-
-
-
-		//Positionnement des milieux
-		if (
-			IsCubyOn(RubikData.FRONT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
-			IsCubyOn(RubikData.BACK, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
-			IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{
-			RotateUntil(pattern, orderList, 7, 1.0f, () => {
-				return pattern[RubikData.UP[4]] == objectivePattern[RubikData.UP[4]];
-			});
-		}
-		else if (IsCubyOn(RubikData.LEFT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{
-			Rotate(pattern, orderList, 1, -1.0f);
-		}
-		else if (IsCubyOn(RubikData.RIGHT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{
-			Rotate(pattern, orderList, 1, 1.0f);
-		}
-		RotateUntil(pattern, orderList, 4, 1.0f, () => {
-			return pattern[RubikData.FRONT[4]] == objectivePattern[RubikData.FRONT[4]];
-		});
-
 
 
 		
@@ -984,14 +957,8 @@ Print<string>(pattern);Debug.Log("F");
 
 
 
-		foreach (Order order in orderList)
-		{
-			OrderQueue.Enqueue(order);
-		}
-			
-			
 
-		currentOrder = null;
+		return orderList;
 
 	}
 
@@ -1050,95 +1017,33 @@ Print<string>(pattern);Debug.Log("F");
 
 
 
-
-
-
-
-
-
-
-
-
-		
-		
-
-
-		/*
-
-		//transform to json th pattern arrays
-		string strPattern = "{\"Pattern\":[";
-		for (int i = 0; i < pattern.Length; i++)
-		{
-			strPattern += "\"" + pattern[0] + "\"";
-			if (i + 1 != pattern.Length)
-			strPattern += ",";
-		}
-		strPattern += "]}";
-
-		string strObjectivePattern = "{\"Pattern\":[";
-		for (int i = 0; i < objectivePattern.Length; i++)
-		{
-			strObjectivePattern += "\"" + objectivePattern[0] + "\"";
-			if (i + 1 != objectivePattern.Length)
-			strObjectivePattern += ",";
-		}
-		strObjectivePattern += "]}";
-		
-		SolveJob job = new SolveJob(strPattern, strObjectivePattern, Id);
-		JobHandle handle = job.Schedule();
-
-
-
-		*/
-
-
-
-
-
-
-
 		Execute(objectivePatternClone, pattern, orderList, (result) => {
 			finishTime = DateTime.Now;
 			TimeSpan chrono = new TimeSpan(finishTime.Ticks - beginTime.Ticks);
 			Debug.Log(chrono.TotalSeconds);
 
 			if (result == null)
-				Debug.Log("introuvable");
-			else
 			{
-				foreach (Order order in orderList)
+				Debug.Log("Speed boost not successful");
+				result = StartSolve(objectivePattern);
+
+				if (result == null)
 				{
-					OrderQueue.Enqueue(order);
-					Debug.Log(order);
+					Debug.Log("Introuvable");
+					goto END;
 				}
 			}
 
+			foreach (Order order in result)
+            {
+				OrderQueue.Enqueue(order);
+            }
+
+		END:
 			currentOrder = null;
 		});
 
 
-		/*
-		for (int counter = 0; counter <= 20; counter++)
-		{
-			if (Search(objectivePattern, pattern, orderList, counter))
-			{
-				Debug.Log("solution trouvée");
-
-				foreach (Order order in orderList)
-				{
-					OrderQueue.Enqueue(order);
-					Debug.Log(order);
-				}
-
-				goto END;
-			}
-		}
-
-		Debug.Log("solution introuvable");
-
-		END:
-		currentOrder = null;
-		*/
 	}
 
 	private bool Search(string[] objectivePattern, string[] pattern, List<Order> orderList, int counter, int previousIndex, float previousDirection, bool repetition)
@@ -1204,10 +1109,10 @@ Print<string>(pattern);Debug.Log("F");
 
 		return isEqual;
 	}
-	/*
+	
 	protected void Execute(string[] objectivePattern, string[] pattern, List<Order> orderList, Action<List<Order>> callback)
 	{
-		for (int counter = 0; counter <= 15; counter++)
+		for (int counter = 0; counter <= 5; counter++)
 		{
 			if (Search(objectivePattern, pattern, orderList, counter, -10, -10.0f, false))
 			{
@@ -1218,7 +1123,7 @@ Print<string>(pattern);Debug.Log("F");
 
 		callback(null);
 		return;
-	}*/
+	}
 
 	
 	public static void FinalizeSolve(List<Order> orderList, int id)
