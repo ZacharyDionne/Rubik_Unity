@@ -997,21 +997,95 @@ public class RubiksCube : MonoBehaviour
 		//bien placer la croix
 		List<int> wellPlaced = new List<int>();
 
+		void Rururuur(int r)
+        {
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+		}
 
 
-		//RENDU ICI___________________________________________________________metre u while pour qu'il y est au moins 1 bien placee
 
+		RotateUntil(pattern, orderList, 5, 1.0f, () => {
+			foreach (int position in new int[] { 7, 15, 17, 25 })
+			{
+				if (pattern[position].Equals(objectivePattern[position]))
+					return true;
+			}
+
+
+			return false;
+		});
 
 		foreach (int position in new int[] { 7, 15, 17, 25 })
 		{
 			string cuby = pattern[position];
+
 			string sideColor = GetCubyColorFromFace(cuby, position, RubikData.TOUCHING_FACES[position][1]);
-			if (sideColor.Equals(objectivePattern[RubikData.TOUCHING_FACES[position][1][4]]))
+
+
+			if (pattern[position].Equals(objectivePattern[position]))
 				wellPlaced.Add(position);
 		}
 
-		foreach (int i in wellPlaced)
-			Debug.Log(pattern[i]);
+		
+		switch (wellPlaced.Count)
+		{
+			case 1:
+				Debug.Log("case 1");
+
+
+
+
+				if (wellPlaced[0] == 7)
+				{
+					Debug.Log("il est sur le devant");
+
+					Rururuur(6);
+				}
+				else if (wellPlaced[0] == 15)
+				{
+					Debug.Log("il est sur la gauche");
+
+					Rururuur(0);
+				}
+				else if (wellPlaced[0] == 17)
+				{
+					Debug.Log("il est sur la droite");
+
+					Rururuur(2);
+				}
+				else
+				{
+					Debug.Log("il est sur le derriere");
+
+					Rururuur();
+				}
+
+
+
+
+
+
+
+
+				break;
+
+
+			case 2:
+				Debug.Log("case 2");
+				break;
+
+
+			default:
+				Debug.Log("All done");
+				break;
+		}
 
 
 
