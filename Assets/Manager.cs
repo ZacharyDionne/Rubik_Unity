@@ -25,7 +25,7 @@ public class Manager : MonoBehaviour
 		cube.Rotate(2, 1.0f);
 		*/
 
-		/*
+		
 		//L cas 3
 		cube.Rotate(0, 1.0f);
 		cube.Rotate(3, 1.0f);
@@ -34,7 +34,7 @@ public class Manager : MonoBehaviour
 		cube.Rotate(2, 1.0f);
 		cube.Rotate(2, 1.0f);
 		cube.Rotate(3, -1.0f);
-		*/
+		
 
 		/*
 		//L cas 4

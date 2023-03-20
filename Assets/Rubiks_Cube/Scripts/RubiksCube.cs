@@ -995,8 +995,23 @@ public class RubiksCube : MonoBehaviour
 
 
 		//bien placer la croix
+		List<int> wellPlaced = new List<int>();
 
 
+
+		//RENDU ICI___________________________________________________________metre u while pour qu'il y est au moins 1 bien placee
+
+
+		foreach (int position in new int[] { 7, 15, 17, 25 })
+		{
+			string cuby = pattern[position];
+			string sideColor = GetCubyColorFromFace(cuby, position, RubikData.TOUCHING_FACES[position][1]);
+			if (sideColor.Equals(objectivePattern[RubikData.TOUCHING_FACES[position][1][4]]))
+				wellPlaced.Add(position);
+		}
+
+		foreach (int i in wellPlaced)
+			Debug.Log(pattern[i]);
 
 
 
