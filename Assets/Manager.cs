@@ -77,7 +77,7 @@ public class Manager : MonoBehaviour
 		cube.Rotate(7, 1.0f);
 		*/
 
-		
+		/*
 		//ligne cas 2
 		cube.Rotate(0, 1.0f);
 		cube.Rotate(3, 1.0f);
@@ -90,7 +90,7 @@ public class Manager : MonoBehaviour
 		cube.Rotate(5, 1.0f);
 		cube.Rotate(6, 1.0f);
 		cube.Rotate(7, -1.0f);
-		
+		*/
 
 		/*
 		//deja fait
@@ -110,11 +110,11 @@ public class Manager : MonoBehaviour
 
 
 
-		cube.Solve(RubikData.DEFAULT_PATTERN);
-
-
-		//cube.Randomize();
 		//cube.Solve(RubikData.DEFAULT_PATTERN);
+
+
+		cube.Randomize();
+		cube.Solve(RubikData.DEFAULT_PATTERN);
 	}
 
 }

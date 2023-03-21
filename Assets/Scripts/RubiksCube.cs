@@ -1303,6 +1303,9 @@ public class RubiksCube : MonoBehaviour
 			Debug.Log(cuby);
 
 
+		if (badlyOriented.Count == 0)
+			goto PASS;
+
 		int workPosition = FindCuby(pattern, badlyOriented[0]);
 		while (badlyOriented.Count != 0)
         {
@@ -1314,7 +1317,7 @@ public class RubiksCube : MonoBehaviour
 			});
 			Print<string>(pattern);Debug.Log("\tsexy move!");
 
-			if (workPosition == 0 || workPosition == 26)
+			if (workPosition == 6 || workPosition == 26)
             {
 				Debug.Log("is in first if");
 				if (GetCubyFaceFromColor(chosenCuby, workPosition, objectivePattern[RubikData.DOWN[4]][0]) == RubikData.TOUCHING_FACES[workPosition][1])
@@ -1334,12 +1337,12 @@ public class RubiksCube : MonoBehaviour
 				if (GetCubyFaceFromColor(chosenCuby, workPosition, objectivePattern[RubikData.DOWN[4]][0]) == RubikData.TOUCHING_FACES[workPosition][1])
 				{
 					Debug.Log("yellow touching a side");
-					Dfdf(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
+					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
 				}
 				else
 				{
-					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
-					Debug.Log("yellow touching front or back");
+					Dfdf(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
+					Debug.Log($"yellow touching front or back, index={Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1])}");
 				}
 			}
 
@@ -1347,8 +1350,14 @@ public class RubiksCube : MonoBehaviour
 			badlyOriented.RemoveAt(0);
         }
 
-		
+		PASS:
 
+
+		RotateUntil(pattern, orderList, 5, 1.0f, () => {
+
+			return pattern[7].Equals(objectivePattern[7]);
+		
+		});
 
 		return orderList;
 
