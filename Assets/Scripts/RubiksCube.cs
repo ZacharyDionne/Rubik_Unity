@@ -351,7 +351,7 @@ public class RubiksCube : MonoBehaviour
 
 	//variables pour l'animation de rotation
 	protected int angleCounter;
-	protected const float ROTATION_SLOWNESS = 10.0f;
+	protected const float ROTATION_SLOWNESS = 16.0f;
 	protected const float ROTATION = 180.0f / ROTATION_SLOWNESS;
 	protected const float ROTATION_STEP = ROTATION_SLOWNESS / 2.0f;
 
@@ -1008,6 +1008,17 @@ public class RubiksCube : MonoBehaviour
 			Rotate(pattern, orderList, 5, 1.0f);
 			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
 		}
+		void Ruururur(int r)
+		{
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+		}
 
 
 
@@ -1033,7 +1044,8 @@ public class RubiksCube : MonoBehaviour
 				wellPlaced.Add(position);
 		}
 
-		
+		int r;
+		string[] backupPattern = (string[]) pattern.Clone();
 		switch (wellPlaced.Count)
 		{
 			case 1:
@@ -1046,39 +1058,70 @@ public class RubiksCube : MonoBehaviour
 				{
 					Debug.Log("il est sur le devant");
 
-					Rururuur(6);
+					//Rururuur(6);
+					r = 6;
 				}
 				else if (wellPlaced[0] == 15)
 				{
 					Debug.Log("il est sur la gauche");
 
-					Rururuur(0);
+					//Rururuur(0);
+					r = 0;
 				}
 				else if (wellPlaced[0] == 17)
 				{
 					Debug.Log("il est sur la droite");
 
-					Rururuur(2);
+					//Rururuur(2);
+					r = 2;
 				}
 				else
 				{
 					Debug.Log("il est sur le derriere");
 
-					Rururuur();
+					//Rururuur(8);
+					r = 8;
 				}
 
+				Print<string>(pattern);
+				Rururuur(r);Print<string>(pattern);
 
+				if (
+					!pattern[7].Equals(objectivePattern[7]) ||
+					!pattern[15].Equals(objectivePattern[15]) ||
+					!pattern[17].Equals(objectivePattern[17]) ||
+					!pattern[25].Equals(objectivePattern[25])
+				)
+				{Debug.Log("it was the other side");
+					for (int i = 8; i != 0; i--)
+						orderList.RemoveAt(orderList.Count - 1);
 
+					pattern = backupPattern;
 
-
-
-
-
+					Ruururur(r);Print<string>(pattern);
+				}
+				
 				break;
 
 
 			case 2:
 				Debug.Log("case 2");
+
+				if (wellPlaced[0] == 7 || wellPlaced[0] == 25)
+				{Debug.Log("bien place en face et derriere");
+					r = 0;
+				}
+				else
+				{Debug.Log("bien place a gauche et a droite");
+					r = 8;
+				}
+
+				Rururuur(r);
+
+				Rotate(pattern, orderList, 5, -1.0f);
+
+				Rururuur(r);
+
 				break;
 
 
