@@ -1021,7 +1021,7 @@ public class RubiksCube : MonoBehaviour
 		}
 
 
-
+		//tourner jusqu'a au moins 1 soit bien placer et oriente
 		RotateUntil(pattern, orderList, 5, 1.0f, () => {
 			foreach (int position in new int[] { 7, 15, 17, 25 })
 			{
@@ -1033,19 +1033,15 @@ public class RubiksCube : MonoBehaviour
 			return false;
 		});
 
+		TRY_AGAIN:
 		foreach (int position in new int[] { 7, 15, 17, 25 })
 		{
-			string cuby = pattern[position];
-
-			string sideColor = GetCubyColorFromFace(cuby, position, RubikData.TOUCHING_FACES[position][1]);
-
-
 			if (pattern[position].Equals(objectivePattern[position]))
 				wellPlaced.Add(position);
 		}
 
-		int r;
-		string[] backupPattern = (string[]) pattern.Clone();
+		int r = -1;
+		string[] backupPattern = (string[]) pattern.Clone();Debug.Log(wellPlaced.Count);
 		switch (wellPlaced.Count)
 		{
 			case 1:
@@ -1058,28 +1054,24 @@ public class RubiksCube : MonoBehaviour
 				{
 					Debug.Log("il est sur le devant");
 
-					//Rururuur(6);
 					r = 6;
 				}
 				else if (wellPlaced[0] == 15)
 				{
 					Debug.Log("il est sur la gauche");
 
-					//Rururuur(0);
-					r = 0;
+					r = 2;
 				}
 				else if (wellPlaced[0] == 17)
 				{
 					Debug.Log("il est sur la droite");
 
-					//Rururuur(2);
-					r = 2;
+					r = 0;
 				}
 				else
 				{
 					Debug.Log("il est sur le derriere");
 
-					//Rururuur(8);
 					r = 8;
 				}
 
@@ -1105,22 +1097,53 @@ public class RubiksCube : MonoBehaviour
 
 
 			case 2:
-				Debug.Log("case 2");
+				Debug.Log("case 2"); Print<string>(pattern);
 
-				if (wellPlaced[0] == 7 || wellPlaced[0] == 25)
+				if ((wellPlaced[0] == 7 && wellPlaced[1] == 25) || (wellPlaced[0] == 25 && wellPlaced[1] == 7))
 				{Debug.Log("bien place en face et derriere");
 					r = 0;
 				}
-				else
-				{Debug.Log("bien place a gauche et a droite");
+				else if ((wellPlaced[0] == 15 && wellPlaced[1] == 17) || (wellPlaced[0] == 17 && wellPlaced[1] == 15))
+				{
+					Debug.Log("bien place a gauche et a droite");
 					r = 8;
 				}
+				else
+                {
+					Debug.Log("un L de bien fait, choisir un cote qui est incorrect comme nouveau cote");
+
+					foreach (int position in new int[]{ 7, 15, 17, 25 })
+                    {
+						bool found = false;
+						for (int i = 0; i < wellPlaced.Count; i++)
+                        {
+							if (position == wellPlaced[i])
+								found = true;
+                        }
+
+						if (!found)
+                        {
+							string chosenCuby = pattern[position];Debug.Log($"chosen cuby: {chosenCuby}");Print<string>(pattern);
+
+							RotateUntil(pattern, orderList, 5, 1.0f, () => {
+								return FindCuby(pattern, chosenCuby) == FindCuby(objectivePattern, chosenCuby);
+							});
+							Print<string>(pattern);Debug.Log("let's try again");
+
+							wellPlaced.Clear();
+
+							goto TRY_AGAIN;
+                        }
+
+                    }
+
+                }
 
 				Rururuur(r);
 
 				Rotate(pattern, orderList, 5, -1.0f);
 
-				Rururuur(r);
+				Rururuur(r); Print<string>(pattern);
 
 				break;
 
@@ -1130,6 +1153,201 @@ public class RubiksCube : MonoBehaviour
 				break;
 		}
 
+
+		
+
+
+		//bien placer les coins
+		wellPlaced.Clear(); Debug.Log("-------------les coins------------------");Print<string>(pattern);
+		backupPattern = (string[]) pattern.Clone();
+
+		void Luruluru(int l, int r)
+        {
+			Rotate(pattern, orderList, l, -RubikData.DIRECTION_CORRECTION[l]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, l, RubikData.DIRECTION_CORRECTION[l]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+		}
+
+		void Rulurulu(int l, int r)
+        {
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, l, -RubikData.DIRECTION_CORRECTION[l]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, l, RubikData.DIRECTION_CORRECTION[l]);
+			Rotate(pattern, orderList, 5, 1.0f);
+		}
+
+		void GetWellPlaced()
+        {
+			foreach (int position in new int[] { 6, 8, 24, 26 })
+			{
+				if (FindCuby(pattern, objectivePattern[position]) == position)
+					wellPlaced.Add(position);
+			}
+		}
+
+
+		GetWellPlaced();
+		if (wellPlaced.Count == 0)
+        {
+			Debug.Log("no one was ok");
+			Luruluru(8, 6);
+			GetWellPlaced();
+
+			if (wellPlaced.Count == 0)
+            {
+				for (int i = 8; i != 0; i--)
+					orderList.RemoveAt(orderList.Count - 1);
+
+				pattern = backupPattern;
+
+				Rulurulu(0, 2);
+
+				GetWellPlaced();
+            }
+        }
+
+
+
+
+		
+
+
+		if (
+			FindCuby(pattern, objectivePattern[6]) != 6 ||
+			FindCuby(pattern, objectivePattern[8]) != 8 ||
+			FindCuby(pattern, objectivePattern[24]) != 24 ||
+			FindCuby(pattern, objectivePattern[26]) != 26
+			)
+        {
+			int workCorner = wellPlaced[0];
+			backupPattern = (string[])pattern.Clone();
+
+			Luruluru(RubikData.LURULURU_MAP[workCorner][0], RubikData.LURULURU_MAP[workCorner][1]); Print<string>(pattern);
+
+			if (
+				FindCuby(pattern, objectivePattern[6]) != 6 ||
+				FindCuby(pattern, objectivePattern[8]) != 8 ||
+				FindCuby(pattern, objectivePattern[24]) != 24 ||
+				FindCuby(pattern, objectivePattern[26]) != 26
+				)
+			{
+				Debug.Log("try the other side");
+				for (int i = 8; i != 0; i--)
+					orderList.RemoveAt(orderList.Count - 1);
+
+				pattern = backupPattern;
+
+				Rulurulu(RubikData.RULURULU_MAP[workCorner][0], RubikData.RULURULU_MAP[workCorner][1]); Print<string>(pattern);
+			}
+		}
+
+		
+
+
+		wellPlaced.Clear();
+		GetWellPlaced();
+		foreach (int i in wellPlaced)
+			Debug.Log(i);
+
+
+		
+
+		
+		//bien oriente les coins
+		Debug.Log("sexy move nonstop");
+
+
+		List<string> badlyOriented = new List<string>();
+		void Fdfd(int f)
+		{
+			for (int i = 2; i != 0; i--)
+            {
+				Rotate(pattern, orderList, f, RubikData.DIRECTION_CORRECTION[f]);
+				Rotate(pattern, orderList, 3, -1.0f);
+				Rotate(pattern, orderList, f, -RubikData.DIRECTION_CORRECTION[f]);
+				Rotate(pattern, orderList, 3, 1.0f);
+			}
+		}
+		void Dfdf(int f)
+		{
+			for (int i = 2; i != 0; i--)
+			{
+				Rotate(pattern, orderList, 3, -1.0f);
+				Rotate(pattern, orderList, f, RubikData.DIRECTION_CORRECTION[f]);
+				Rotate(pattern, orderList, 3, 1.0f);
+				Rotate(pattern, orderList, f, -RubikData.DIRECTION_CORRECTION[f]);
+			}
+		}
+
+
+
+
+
+		foreach (int position in new int[]{ 6, 8, 24, 26 })
+        {
+			if (!pattern[position].Equals(objectivePattern[position]))
+				badlyOriented.Add(pattern[position]);
+        }
+
+		Print<string>(pattern);
+		foreach (string cuby in badlyOriented)
+			Debug.Log(cuby);
+
+
+		int workPosition = FindCuby(pattern, badlyOriented[0]);
+		while (badlyOriented.Count != 0)
+        {
+			string chosenCuby = badlyOriented[0];Print<string>(pattern); Debug.Log($"doing cuby {chosenCuby}, rotating to workingPosition:{workPosition}");
+			string objectiveCubyDownColor = objectivePattern[FindCuby(objectivePattern, chosenCuby)][0].ToString();
+
+			RotateUntil(pattern, orderList, 5, 1.0f, () => {
+				return FindCuby(pattern, chosenCuby) == workPosition;
+			});
+			Print<string>(pattern);Debug.Log("\tsexy move!");
+
+			if (workPosition == 0 || workPosition == 26)
+            {
+				Debug.Log("is in first if");
+				if (GetCubyFaceFromColor(chosenCuby, workPosition, objectivePattern[RubikData.DOWN[4]][0]) == RubikData.TOUCHING_FACES[workPosition][1])
+				{
+					Dfdf(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][2]));
+					Debug.Log("yellow touching a side");
+				}
+				else
+				{
+					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][2]));
+					Debug.Log("yellow touching front or back");
+				}
+			}
+			else
+            {
+				Debug.Log("is in second if");
+				if (GetCubyFaceFromColor(chosenCuby, workPosition, objectivePattern[RubikData.DOWN[4]][0]) == RubikData.TOUCHING_FACES[workPosition][1])
+				{
+					Debug.Log("yellow touching a side");
+					Dfdf(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
+				}
+				else
+				{
+					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
+					Debug.Log("yellow touching front or back");
+				}
+			}
+
+			Print<string>(pattern);
+			badlyOriented.RemoveAt(0);
+        }
+
+		
 
 
 		return orderList;

@@ -25,8 +25,8 @@ public class Manager : MonoBehaviour
 		cube.Rotate(2, 1.0f);
 		*/
 
-		
-		//L cas 3
+		/*
+		//L cas 3 case 1 il est sur le devant try the other side
 		cube.Rotate(0, 1.0f);
 		cube.Rotate(3, 1.0f);
 		cube.Rotate(4, 1.0f);
@@ -34,7 +34,7 @@ public class Manager : MonoBehaviour
 		cube.Rotate(2, 1.0f);
 		cube.Rotate(2, 1.0f);
 		cube.Rotate(3, -1.0f);
-		
+		*/
 
 		/*
 		//L cas 4
@@ -77,7 +77,7 @@ public class Manager : MonoBehaviour
 		cube.Rotate(7, 1.0f);
 		*/
 
-		/*
+		
 		//ligne cas 2
 		cube.Rotate(0, 1.0f);
 		cube.Rotate(3, 1.0f);
@@ -90,7 +90,7 @@ public class Manager : MonoBehaviour
 		cube.Rotate(5, 1.0f);
 		cube.Rotate(6, 1.0f);
 		cube.Rotate(7, -1.0f);
-		*/
+		
 
 		/*
 		//deja fait

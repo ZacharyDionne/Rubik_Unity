@@ -422,5 +422,20 @@ public class RubikData
 		{ 8, -1.0f }
 	};
 
+	public static readonly Dictionary<int, int[]> LURULURU_MAP = new Dictionary<int, int[]>()
+	{
+		{ 6, new int[]{ 8, 6 } },
+		{ 8, new int[]{ 2, 0 } },
+		{ 24, new int[]{ 0, 2 } },
+		{ 26, new int[]{ 6, 8 } }
+	};
+
+	public static readonly Dictionary<int, int[]> RULURULU_MAP = new Dictionary<int, int[]>()
+	{
+		{ 6, new int[]{ 0, 2 } },
+		{ 8, new int[]{ 8, 6 } },
+		{ 24, new int[]{ 6, 8 } },
+		{ 26, new int[]{ 2, 0 } }
+	};
 
 }
