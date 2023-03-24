@@ -569,7 +569,27 @@ public class RubiksCube : MonoBehaviour
 		{
 			SolveOrder solveOrder = (SolveOrder) currentOrder;
 
-			TestSolve(solveOrder.Pattern);//StartSolve(solveOrder.Pattern);
+			string[] pattern = (string[])currentPattern.Clone();
+			List<Order> result = StartSolve(pattern, solveOrder.Pattern);
+
+			if (result == null)
+			{
+				Debug.Log("Introuvable");
+				goto END;
+			}
+
+			result.Reverse();
+
+			foreach (Order order in result)
+			{
+				OrderList.Insert(0, order);
+			}
+
+		END:
+			currentOrder = null;
+
+
+
 		}
 	}
 
@@ -592,7 +612,27 @@ public class RubiksCube : MonoBehaviour
 		List<Order> orderList = new List<Order>();
 
 
-		
+		//Positionnement des milieux
+		if (
+			IsCubyOn(RubikData.FRONT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.BACK, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
+		{
+			RotateUntil(pattern, orderList, 7, 1.0f, () => {
+				return pattern[RubikData.UP[4]] == objectivePattern[RubikData.UP[4]];
+			});
+		}
+		else if (IsCubyOn(RubikData.LEFT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
+		{
+			Rotate(pattern, orderList, 1, -1.0f);
+		}
+		else if (IsCubyOn(RubikData.RIGHT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
+		{
+			Rotate(pattern, orderList, 1, 1.0f);
+		}
+		RotateUntil(pattern, orderList, 4, 1.0f, () => {
+			return pattern[RubikData.FRONT[4]] == objectivePattern[RubikData.FRONT[4]];
+		});
 
 
 		//Faire la croix du dessus
@@ -1363,203 +1403,6 @@ public class RubiksCube : MonoBehaviour
 		return orderList;
 
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	public void TestSolve(string[] objectivePattern)
-	{
-		List<Order> orderList = new List<Order>();
-		string[] pattern = (string[]) currentPattern.Clone();
-
-
-
-
-
-		DateTime beginTime = DateTime.Now, finishTime;
-
-
-
-
-		//Positionnement des milieux
-		if (
-			IsCubyOn(RubikData.FRONT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
-			IsCubyOn(RubikData.BACK, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
-			IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{
-			RotateUntil(pattern, orderList, 7, 1.0f, () => {
-				return pattern[RubikData.UP[4]] == objectivePattern[RubikData.UP[4]];
-			});
-		}
-		else if (IsCubyOn(RubikData.LEFT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{
-			Rotate(pattern, orderList, 1, -1.0f);
-		}
-		else if (IsCubyOn(RubikData.RIGHT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{
-			Rotate(pattern, orderList, 1, 1.0f);
-		}
-		RotateUntil(pattern, orderList, 4, 1.0f, () => {
-			return pattern[RubikData.FRONT[4]] == objectivePattern[RubikData.FRONT[4]];
-		});
-
-
-
-
-
-		Execute(objectivePattern, (string[]) pattern.Clone(), (result) => {
-			finishTime = DateTime.Now;
-			TimeSpan chrono = new TimeSpan(finishTime.Ticks - beginTime.Ticks);
-			Debug.Log(chrono.TotalSeconds);
-
-			if (result == null)
-			{
-				Debug.Log("Speed boost not successful");
-				result = StartSolve(pattern, objectivePattern);
-
-				if (result == null)
-				{
-					Debug.Log("Introuvable");
-					goto END;
-				}
-			}
-
-
-
-			foreach (Order order in result)
-            {
-				orderList.Add(order);
-			}
-
-			orderList.Reverse();
-
-			foreach (Order order in orderList)
-			{
-				OrderList.Insert(0, order);
-			}
-
-		END:
-			currentOrder = null;
-		});
-
-
-	}
-
-	private bool Search(string[] objectivePattern, string[] pattern, List<Order> orderList, int counter, int previousIndex, float previousDirection, bool repetition)
-	{
-		if (counter == 0)
-		{
-			return IsPatternFound(objectivePattern, pattern);
-		}
-
-		counter--;
-
-		foreach (int index in new int[]{ 0, 2, 3, 5, 6, 8 })
-		{
-			for (float direction = -1.0f; direction <= 1.0f; direction += 2.0f)
-			{
-				bool repetitionArg = false;
-	
-
-				if (index == previousIndex)
-				{
-					if (direction == previousDirection)
-					{
-						if (repetition)
-							continue;
-
-						repetitionArg = true;
-					}
-					else
-					{
-						continue;
-					}
-				}
-
-				
-
-
-				Rotate(pattern, orderList, index, direction);
-				
-				if (Search(objectivePattern, pattern, orderList, counter, index, direction, repetitionArg))
-					return true;
-
-				Rotate(pattern, orderList, index, -direction);
-				orderList.RemoveAt(orderList.Count - 1);
-				orderList.RemoveAt(orderList.Count - 1);
-			}
-		}
-
-		return false;
-	}
-
-	private static bool IsPatternFound(string[] objectivePattern, string[] pattern)
-	{
-		bool isEqual = true;
-		
-		for (int i = 0; i < objectivePattern.Length; i++)
-		{
-			if (!objectivePattern[i].Equals(pattern[i]))
-			{
-				isEqual = false;
-				break;
-			}
-		}
-
-		return isEqual;
-	}
-	
-	protected void Execute(string[] objectivePattern, string[] pattern, Action<List<Order>> callback)
-	{
-		List<Order> orderList = new List<Order>();
-
-		for (int counter = 0; counter <= 5; counter++)
-		{
-			if (Search(objectivePattern, pattern, orderList, counter, -10, -10.0f, false))
-			{
-				callback(orderList);
-				return;
-			}
-		}
-
-		callback(null);
-		return;
-	}
-
-	
-	public static void FinalizeSolve(List<Order> orderList, int id)
-	{
-		List<Order> orderQueue = null;
-
-		RubiksCube cube = cubeList.Find((cube) => { return cube.Id == id; });
-
-		orderQueue = cube.OrderList;
-
-		if (orderList == null)
-			Debug.Log("introuvable");
-		else
-		{
-			for (int i = 0; i < orderList.Count; i++)
-            {
-				orderQueue.Insert(i, orderList[i]);
-				Debug.Log(orderList[i]);
-			}
-		}
-			
-		cube.currentOrder = null;
-	}
-
 
 
 
