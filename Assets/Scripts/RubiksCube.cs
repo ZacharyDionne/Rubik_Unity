@@ -1544,37 +1544,6 @@ public class RubiksCube : MonoBehaviour
 
 
 
-	/*
-		Cette methode n'est pas securitaire a utiliser durant la rotation du cube.
-		Utilisez cubyPositions durant la rotation du cube.
-	 */
-	protected Transform[] GetPattern()
-    	{
-		Transform[] pattern = new Transform[27];
-
-		for (int i = 0; i < 27; i++)
-        	{
-			
-
-			for (int j = 0; j < 27; j++)
-            		{
-				Transform cuby = transform.GetChild(j);
-
-				Vector3 cubyPosition = new Vector3(Mathf.RoundToInt(cuby.localPosition.x), Mathf.RoundToInt(cuby.localPosition.y), Mathf.RoundToInt(cuby.localPosition.z));
-
-				if (cubyPosition == RubikData.worldPositions[i])
-                		{
-					pattern[i] = cuby;
-					break;
-                		}
-            		}
-        	}
-
-		return pattern;
-    	}
-
-
-
 
 
 
@@ -1626,7 +1595,9 @@ public class RubiksCube : MonoBehaviour
 	protected void InstantRotate()
     {
 		for (int i = 0; i < 9; i++)
-			cubyPositions[RubikData.rotationPositions[index, i]].RotateAround(transform.position, currentAxis, ROTATION_SPEED * direction);
+			cubyPositions[RubikData.rotationPositions[index, i]].RotateAround(transform.position, currentAxis, 90.0f * direction);
+
+		UpdatePositions();
 	}
 
 
@@ -1740,14 +1711,10 @@ public class RubiksCube : MonoBehaviour
 
 			cubyPositions[RubikData.rotationPositions[index, i]] = bufferPositions[i];
 		}
-		
+
 
 		//Met a jour currentPattern pour refleter les changements
-		Transform[] pattern = GetPattern();
-		for (int i = 0; i < 27; i++)
-		{
-			currentPattern[i] = pattern[i].name;
-		}
+		UpdatePositions(currentPattern, index, direction);
 		
 	}
 
