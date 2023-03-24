@@ -1604,12 +1604,12 @@ public class RubiksCube : MonoBehaviour
 	protected void RotateAnimation()
     {
 
-		float CURRENT_ROTATION = ROTATION_SPEED * Time.fixedDeltaTime * 60.0f;
+		float currentRotation = ROTATION_SPEED * Time.fixedDeltaTime * 60.0f;
 
 		for (int i = 0; i < 9; i++)
-			cubyPositions[RubikData.rotationPositions[index, i]].RotateAround(transform.position, currentAxis, CURRENT_ROTATION * direction);
+			cubyPositions[RubikData.rotationPositions[index, i]].RotateAround(transform.position, currentAxis, currentRotation * direction);
 
-		degreeCounter += CURRENT_ROTATION;
+		degreeCounter += currentRotation;
 
 
 		if (degreeCounter >= 90.0f)
