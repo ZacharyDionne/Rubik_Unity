@@ -9,9 +9,18 @@ public class Manager : MonoBehaviour
     void Start()
     {
 		string[] pattern = (string[]) RubikData.DEFAULT_PATTERN.Clone();
+		
 
 
-		RubiksCube cube = RubiksCube.GenerateCube(pattern).GetComponent<RubiksCube>();
+		RubiksCube cube = RubiksCube.GenerateCube(pattern);
+
+		if (cube == null)
+        {
+			Debug.Log("Cube impossible");
+			return;
+		}
+			
+
 		cube.transform.parent = transform.parent;
 
 		/*
@@ -113,10 +122,10 @@ public class Manager : MonoBehaviour
 		//cube.Solve(RubikData.DEFAULT_PATTERN);
 
 
-		cube.Randomize();
+		//cube.Randomize();
 
 		//cube.GetJSON((json) => { Debug.Log(json); });
-		cube.Solve(RubikData.DEFAULT_PATTERN);
+		cube.Solve(new string[] {"WOB", "OY", "WGO", "YB", "R", "WR", "YOG", "GW", "GWR", "BR", "G", "BO", "Y", "none", "W", "WB", "B", "YR", "BYR", "GR", "BRW", "YG", "O", "OW", "YBO", "OG", "GRY"});
 	}
 
 }
