@@ -370,7 +370,7 @@ public class RubiksCube : MonoBehaviour
 	protected float lastDirection;
 
 	//Queue des actions que le cube doit faire
-	public Queue<Order> OrderQueue { get; private set; }
+	public List<Order> OrderList { get; private set; }
 	protected Order currentOrder;
 	
 
@@ -413,13 +413,13 @@ public class RubiksCube : MonoBehaviour
 
 	public void Rotate(int index, float direction)
 	{
-		OrderQueue.Enqueue(new RotateOrder(index, direction));
+		OrderList.Add(new RotateOrder(index, direction));
 	}
 
 
     public void Solve(string[] objectivePattern)
     {
-		OrderQueue.Enqueue(new SolveOrder(objectivePattern));
+		OrderList.Add(new SolveOrder(objectivePattern));
 	}
 
 	
@@ -445,7 +445,7 @@ public class RubiksCube : MonoBehaviour
 
 	public void Randomize()
     {
-		OrderQueue.Enqueue(new RandomizeOrder());
+		OrderList.Add(new RandomizeOrder());
 	}
 
 
@@ -467,11 +467,11 @@ public class RubiksCube : MonoBehaviour
 		{
 			if (Input.GetKeyDown(KeyCode.A))
 			{
-				OrderQueue.Enqueue(new RotateOrder(index, 1.0f));
+				OrderList.Add(new RotateOrder(index, 1.0f));
 			}
 			if (Input.GetKeyDown(KeyCode.D))
 			{
-				OrderQueue.Enqueue(new RotateOrder(index, -1.0f));
+				OrderList.Add(new RotateOrder(index, -1.0f));
 			}
 			else if (Input.GetKeyDown(KeyCode.LeftArrow))
 			{
@@ -532,7 +532,7 @@ public class RubiksCube : MonoBehaviour
 		bufferPositions = new Transform[9];
 		random = new System.Random();
 		cubyPositions = new Transform[27];
-		OrderQueue = new Queue<Order>();
+		OrderList = new List<Order>();
 	}
 
 
@@ -546,10 +546,11 @@ public class RubiksCube : MonoBehaviour
 
 	protected void NextOrder()
 	{
-		if (currentOrder != null || OrderQueue.Count == 0)
+		if (currentOrder != null || OrderList.Count == 0)
 			return;
 
-		currentOrder = OrderQueue.Dequeue();
+		currentOrder = OrderList[0];
+		OrderList.RemoveAt(0);
 
 		if (currentOrder is RandomizeOrder)
 		{
@@ -1434,15 +1435,19 @@ public class RubiksCube : MonoBehaviour
 				}
 			}
 
-			foreach (Order order in orderList)
-            {
-				OrderQueue.Enqueue(order);
-            }
+
 
 			foreach (Order order in result)
             {
-				OrderQueue.Enqueue(order);
-            }
+				orderList.Add(order);
+			}
+
+			orderList.Reverse();
+
+			foreach (Order order in orderList)
+			{
+				OrderList.Insert(0, order);
+			}
 
 		END:
 			currentOrder = null;
@@ -1535,20 +1540,20 @@ public class RubiksCube : MonoBehaviour
 	
 	public static void FinalizeSolve(List<Order> orderList, int id)
 	{
-		Queue<Order> orderQueue = null;
+		List<Order> orderQueue = null;
 
 		RubiksCube cube = cubeList.Find((cube) => { return cube.Id == id; });
 
-		orderQueue = cube.OrderQueue;
+		orderQueue = cube.OrderList;
 
 		if (orderList == null)
 			Debug.Log("introuvable");
 		else
 		{
-			foreach (Order order in orderList)
-			{
-				orderQueue.Enqueue(order);
-				Debug.Log(order);
+			for (int i = 0; i < orderList.Count; i++)
+            {
+				orderQueue.Insert(i, orderList[i]);
+				Debug.Log(orderList[i]);
 			}
 		}
 			
