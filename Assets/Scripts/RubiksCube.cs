@@ -350,10 +350,8 @@ public class RubiksCube : MonoBehaviour
 	protected bool isRotating;
 
 	//variables pour l'animation de rotation
-	protected int angleCounter;
-	protected const float ROTATION_SLOWNESS = 16.0f;
-	protected const float ROTATION = 180.0f / ROTATION_SLOWNESS;
-	protected const float ROTATION_STEP = ROTATION_SLOWNESS / 2.0f;
+	protected const float ROTATION_SPEED = 10.0f * (90.0f / 60.0f);
+	protected float degreeCounter;
 
 
 	// -1.0f ou 1.0f, definisse dans quelle direction tourner
@@ -1088,7 +1086,7 @@ public class RubiksCube : MonoBehaviour
 				{
 					r = 8;
 				}
-				Rururuur(r);Print<string>(pattern);
+				Rururuur(r);
 
 				if (
 					!pattern[7].Equals(objectivePattern[7]) ||
@@ -1102,7 +1100,7 @@ public class RubiksCube : MonoBehaviour
 
 					pattern = backupPattern;
 
-					Ruururur(r);Print<string>(pattern);
+					Ruururur(r);
 				}
 				
 				break;
@@ -1150,7 +1148,7 @@ public class RubiksCube : MonoBehaviour
 
 				Rotate(pattern, orderList, 5, -1.0f);
 
-				Rururuur(r); Print<string>(pattern);
+				Rururuur(r);
 
 				break;
 		}
@@ -1232,7 +1230,7 @@ public class RubiksCube : MonoBehaviour
 			int workCorner = wellPlaced[0];
 			backupPattern = (string[])pattern.Clone();
 
-			Luruluru(RubikData.LURULURU_MAP[workCorner][0], RubikData.LURULURU_MAP[workCorner][1]); Print<string>(pattern);
+			Luruluru(RubikData.LURULURU_MAP[workCorner][0], RubikData.LURULURU_MAP[workCorner][1]);
 
 			if (
 				FindCuby(pattern, objectivePattern[6]) != 6 ||
@@ -1246,7 +1244,7 @@ public class RubiksCube : MonoBehaviour
 
 				pattern = backupPattern;
 
-				Rulurulu(RubikData.RULURULU_MAP[workCorner][0], RubikData.RULURULU_MAP[workCorner][1]); Print<string>(pattern);
+				Rulurulu(RubikData.RULURULU_MAP[workCorner][0], RubikData.RULURULU_MAP[workCorner][1]);
 			}
 		}
 
@@ -1604,7 +1602,7 @@ public class RubiksCube : MonoBehaviour
 	protected void RotateBegin()
     	{
 		isRotating = true;
-		angleCounter = 0;
+		degreeCounter = 0.0f;
 		
 
 		if (index <= 2)
@@ -1625,19 +1623,34 @@ public class RubiksCube : MonoBehaviour
 
 
 
+	protected void InstantRotate()
+    {
+		for (int i = 0; i < 9; i++)
+			cubyPositions[RubikData.rotationPositions[index, i]].RotateAround(transform.position, currentAxis, ROTATION_SPEED * direction);
+	}
+
 
 	protected void RotateAnimation()
-    	{
+    {
+
+		float CURRENT_ROTATION = ROTATION_SPEED * Time.fixedDeltaTime * 60.0f;
+
 		for (int i = 0; i < 9; i++)
-			cubyPositions[RubikData.rotationPositions[index, i]].RotateAround(transform.position, currentAxis, ROTATION * direction);
-	
-			
+			cubyPositions[RubikData.rotationPositions[index, i]].RotateAround(transform.position, currentAxis, CURRENT_ROTATION * direction);
 
-		angleCounter++;
+		degreeCounter += CURRENT_ROTATION;
 
 
-		if (angleCounter == ROTATION_STEP)
+		if (degreeCounter >= 90.0f)
+        {
+			if (degreeCounter > 90.0f)
+            {
+				for (int i = 0; i < 9; i++)
+					cubyPositions[RubikData.rotationPositions[index, i]].RotateAround(transform.position, currentAxis, 90.0f - degreeCounter);
+			}
+
 			RotateEnd();
+		}
 	}
 
 
