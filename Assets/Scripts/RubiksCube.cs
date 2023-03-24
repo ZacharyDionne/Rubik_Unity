@@ -403,14 +403,6 @@ public class RubiksCube : MonoBehaviour
 
 	//----------------------PUBLIC METHODES------------------------------------------//
 
-	public override string ToString()
-	{
-		return GetJSONPattern();
-	}
-
-
-
-
 	public void Rotate(int index, float direction)
 	{
 		OrderList.Add(new RotateOrder(index, direction));
@@ -423,23 +415,10 @@ public class RubiksCube : MonoBehaviour
 	}
 
 	
-	public string GetJSONPattern()
-    	{
-		string json = "[";
-
-		for (int i = 0; i < currentPattern.Length; i++)
-        	{
-			json += "\"" + currentPattern[i] + "\"";
-			if (i + 1 != currentPattern.Length)
-            		{
-				json += ",";
-            		}
-        	}
-
-		json += "]";
-
-		return json;
-    	}
+	public void GetJSONPattern(Action<string> callback)
+    {
+		OrderList.Add(new GetJSONOrder(callback));
+    }
 	
 
 
@@ -590,6 +569,25 @@ public class RubiksCube : MonoBehaviour
 
 
 
+		}
+		else if (currentOrder is GetJSONOrder)
+        {
+			GetJSONOrder getJSONOrder = (GetJSONOrder) currentOrder;
+
+			string json = "[";
+
+			for (int i = 0; i < currentPattern.Length; i++)
+			{
+				json += "\"" + currentPattern[i] + "\"";
+				if (i + 1 != currentPattern.Length)
+				{
+					json += ",";
+				}
+			}
+
+			json += "]";
+
+			getJSONOrder.Callback(json);
 		}
 	}
 
