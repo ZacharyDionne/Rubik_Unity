@@ -415,7 +415,7 @@ public class RubiksCube : MonoBehaviour
 	}
 
 	
-	public void GetJSONPattern(Action<string> callback)
+	public void GetJSON(Action<string> callback)
     {
 		OrderList.Add(new GetJSONOrder(callback));
     }
@@ -956,7 +956,6 @@ public class RubiksCube : MonoBehaviour
 		switch (wellOriented.Count)
 		{
 			case 0:
-				Debug.Log("Aucun n'est bien oriente");
 
 				Fururf(0, 6);
 				Rotate(pattern, orderList, 5, -1.0f);
@@ -967,31 +966,26 @@ public class RubiksCube : MonoBehaviour
 			case 2:
 				if (RubikData.opposedFace[RubikData.TOUCHING_FACES[wellOriented[0]][1]] == RubikData.TOUCHING_FACES[wellOriented[1]][1])
 				{
-					Debug.Log("ligne");
 
 					if (wellOriented[0] == 7 || wellOriented[0] == 25)
 					{
-						Debug.Log("cas 1");
 
 						Fruruf(6, 2);
 					}
 					else
 					{
-						Debug.Log("cas 2");
 
 						Fruruf(0, 6);
 					}
 				}
 				else
 				{
-					Debug.Log("L");
 
 					if (
 						(wellOriented[0] == 25 || wellOriented[1] == 25) &&
 						(wellOriented[0] == 15 || wellOriented[1] == 15)
 						)
                     {
-						Debug.Log("cas 1");
 
 						Fururf(8, 0);
 
@@ -1002,7 +996,6 @@ public class RubiksCube : MonoBehaviour
 						(wellOriented[0] == 7 || wellOriented[1] == 7)
 						)
                     {
-						Debug.Log("cas 2");
 
 						Fururf(2, 8);
 					}
@@ -1011,22 +1004,16 @@ public class RubiksCube : MonoBehaviour
 						(wellOriented[0] == 17 || wellOriented[1] == 17)
 						)
 					{
-						Debug.Log("cas 3");
 
 						Fururf(6, 2);
 					}
 					else
 					{
-						Debug.Log("cas 4");
 
 						Fururf(0, 6);
 					}
 				}			
 
-				break;
-			
-			default:
-				Debug.Log("Deja fait");
 				break;
 		}
 
@@ -1080,41 +1067,27 @@ public class RubiksCube : MonoBehaviour
 		}
 
 		int r = -1;
-		string[] backupPattern = (string[]) pattern.Clone();Debug.Log(wellPlaced.Count);
+		string[] backupPattern = (string[]) pattern.Clone();
 		switch (wellPlaced.Count)
 		{
 			case 1:
-				Debug.Log("case 1");
-
-
-
 
 				if (wellPlaced[0] == 7)
 				{
-					Debug.Log("il est sur le devant");
-
 					r = 6;
 				}
 				else if (wellPlaced[0] == 15)
 				{
-					Debug.Log("il est sur la gauche");
-
 					r = 2;
 				}
 				else if (wellPlaced[0] == 17)
 				{
-					Debug.Log("il est sur la droite");
-
 					r = 0;
 				}
 				else
 				{
-					Debug.Log("il est sur le derriere");
-
 					r = 8;
 				}
-
-				Print<string>(pattern);
 				Rururuur(r);Print<string>(pattern);
 
 				if (
@@ -1123,7 +1096,7 @@ public class RubiksCube : MonoBehaviour
 					!pattern[17].Equals(objectivePattern[17]) ||
 					!pattern[25].Equals(objectivePattern[25])
 				)
-				{Debug.Log("it was the other side");
+				{
 					for (int i = 8; i != 0; i--)
 						orderList.RemoveAt(orderList.Count - 1);
 
@@ -1136,21 +1109,17 @@ public class RubiksCube : MonoBehaviour
 
 
 			case 2:
-				Debug.Log("case 2"); Print<string>(pattern);
 
 				if ((wellPlaced[0] == 7 && wellPlaced[1] == 25) || (wellPlaced[0] == 25 && wellPlaced[1] == 7))
-				{Debug.Log("bien place en face et derriere");
+				{
 					r = 0;
 				}
 				else if ((wellPlaced[0] == 15 && wellPlaced[1] == 17) || (wellPlaced[0] == 17 && wellPlaced[1] == 15))
 				{
-					Debug.Log("bien place a gauche et a droite");
 					r = 8;
 				}
 				else
                 {
-					Debug.Log("un L de bien fait, choisir un cote qui est incorrect comme nouveau cote");
-
 					foreach (int position in new int[]{ 7, 15, 17, 25 })
                     {
 						bool found = false;
@@ -1162,12 +1131,11 @@ public class RubiksCube : MonoBehaviour
 
 						if (!found)
                         {
-							string chosenCuby = pattern[position];Debug.Log($"chosen cuby: {chosenCuby}");Print<string>(pattern);
+							string chosenCuby = pattern[position];
 
 							RotateUntil(pattern, orderList, 5, 1.0f, () => {
 								return FindCuby(pattern, chosenCuby) == FindCuby(objectivePattern, chosenCuby);
 							});
-							Print<string>(pattern);Debug.Log("let's try again");
 
 							wellPlaced.Clear();
 
@@ -1185,11 +1153,6 @@ public class RubiksCube : MonoBehaviour
 				Rururuur(r); Print<string>(pattern);
 
 				break;
-
-
-			default:
-				Debug.Log("All done");
-				break;
 		}
 
 
@@ -1197,7 +1160,7 @@ public class RubiksCube : MonoBehaviour
 
 
 		//bien placer les coins
-		wellPlaced.Clear(); Debug.Log("-------------les coins------------------");Print<string>(pattern);
+		wellPlaced.Clear();
 		backupPattern = (string[]) pattern.Clone();
 
 		void Luruluru(int l, int r)
@@ -1237,7 +1200,6 @@ public class RubiksCube : MonoBehaviour
 		GetWellPlaced();
 		if (wellPlaced.Count == 0)
         {
-			Debug.Log("no one was ok");
 			Luruluru(8, 6);
 			GetWellPlaced();
 
@@ -1279,7 +1241,6 @@ public class RubiksCube : MonoBehaviour
 				FindCuby(pattern, objectivePattern[26]) != 26
 				)
 			{
-				Debug.Log("try the other side");
 				for (int i = 8; i != 0; i--)
 					orderList.RemoveAt(orderList.Count - 1);
 
@@ -1294,17 +1255,13 @@ public class RubiksCube : MonoBehaviour
 
 		wellPlaced.Clear();
 		GetWellPlaced();
-		foreach (int i in wellPlaced)
-			Debug.Log(i);
+
 
 
 		
 
 		
 		//bien oriente les coins
-		Debug.Log("sexy move nonstop");
-
-
 		List<string> badlyOriented = new List<string>();
 		void Fdfd(int f)
 		{
@@ -1337,10 +1294,6 @@ public class RubiksCube : MonoBehaviour
 				badlyOriented.Add(pattern[position]);
         }
 
-		Print<string>(pattern);
-		foreach (string cuby in badlyOriented)
-			Debug.Log(cuby);
-
 
 		if (badlyOriented.Count == 0)
 			goto PASS;
@@ -1348,44 +1301,35 @@ public class RubiksCube : MonoBehaviour
 		int workPosition = FindCuby(pattern, badlyOriented[0]);
 		while (badlyOriented.Count != 0)
         {
-			string chosenCuby = badlyOriented[0];Print<string>(pattern); Debug.Log($"doing cuby {chosenCuby}, rotating to workingPosition:{workPosition}");
+			string chosenCuby = badlyOriented[0];
 			string objectiveCubyDownColor = objectivePattern[FindCuby(objectivePattern, chosenCuby)][0].ToString();
 
 			RotateUntil(pattern, orderList, 5, 1.0f, () => {
 				return FindCuby(pattern, chosenCuby) == workPosition;
 			});
-			Print<string>(pattern);Debug.Log("\tsexy move!");
 
 			if (workPosition == 6 || workPosition == 26)
             {
-				Debug.Log("is in first if");
 				if (GetCubyFaceFromColor(chosenCuby, workPosition, objectivePattern[RubikData.DOWN[4]][0]) == RubikData.TOUCHING_FACES[workPosition][1])
 				{
 					Dfdf(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][2]));
-					Debug.Log("yellow touching a side");
 				}
 				else
 				{
 					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][2]));
-					Debug.Log("yellow touching front or back");
 				}
 			}
 			else
             {
-				Debug.Log("is in second if");
 				if (GetCubyFaceFromColor(chosenCuby, workPosition, objectivePattern[RubikData.DOWN[4]][0]) == RubikData.TOUCHING_FACES[workPosition][1])
 				{
-					Debug.Log("yellow touching a side");
 					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
 				}
 				else
 				{
 					Dfdf(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
-					Debug.Log($"yellow touching front or back, index={Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1])}");
 				}
 			}
-
-			Print<string>(pattern);
 			badlyOriented.RemoveAt(0);
         }
 

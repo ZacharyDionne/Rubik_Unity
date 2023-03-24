@@ -115,8 +115,8 @@ public class Manager : MonoBehaviour
 
 		cube.Randomize();
 
-		cube.GetJSONPattern((json) => { Debug.Log(json); });
-		//cube.Solve(RubikData.DEFAULT_PATTERN);
+		//cube.GetJSON((json) => { Debug.Log(json); });
+		cube.Solve(RubikData.DEFAULT_PATTERN);
 	}
 
 }
