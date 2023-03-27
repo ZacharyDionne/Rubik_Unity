@@ -76,7 +76,6 @@ public class RubiksCube : MonoBehaviour
 
 		foreach (RotateOrder order in list)
         {
-			//Debug.Log(order);
 			cube.index = order.Index;
 			cube.direction = order.Direction;
 			cube.OrderList.Insert(0, order);
@@ -604,6 +603,8 @@ public class RubiksCube : MonoBehaviour
 			json += "]";
 
 			getJSONOrder.Callback(json);
+			
+			currentOrder = null;
 		}
 	}
 
@@ -624,24 +625,25 @@ public class RubiksCube : MonoBehaviour
 	protected List<Order> StartSolve(string[] pattern, string[] objectivePattern)
 	{
 		List<Order> orderList = new List<Order>();
-
+		Debug.Log("------------------------------------------------------------");
+		Debug.Log("------------------------------------------------------------");
 
 		//Positionnement des milieux
 		if (
 			IsCubyOn(RubikData.FRONT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
 			IsCubyOn(RubikData.BACK, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
 			IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{
+		{Debug.Log("banane");
 			RotateUntil(pattern, orderList, 7, 1.0f, () => {
 				return pattern[RubikData.UP[4]] == objectivePattern[RubikData.UP[4]];
 			});
 		}
 		else if (IsCubyOn(RubikData.LEFT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{
+		{Debug.Log("banane L");
 			Rotate(pattern, orderList, 1, -1.0f);
 		}
 		else if (IsCubyOn(RubikData.RIGHT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{
+		{Debug.Log("banane R");
 			Rotate(pattern, orderList, 1, 1.0f);
 		}
 		RotateUntil(pattern, orderList, 4, 1.0f, () => {
@@ -682,8 +684,8 @@ public class RubiksCube : MonoBehaviour
 
 			//on aligne le haut
 			RotateUntil(pattern, orderList, 3, 1.0f, () => {
-				return (
-					pattern[FindCuby(pattern, wantedCuby)][0].ToString().Equals(objectivePattern[RubikData.UP[4]]) ?
+				return (//---------------------bug recemment corrige ici---------------------------//
+					pattern[FindCuby(pattern, wantedCuby)][0].ToString().Equals(objectivePattern[position][0].ToString()) ?
 						RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1] :
 						RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][0])
 					.Equals(
@@ -691,13 +693,12 @@ public class RubiksCube : MonoBehaviour
 			});
 
 
-			//go up until in on UP
+			//go up until is on UP
 			RotateUntil(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, cubyRef)][1]), 1.0f, () => {
 				return IsCubyOn(RubikData.UP, FindCuby(pattern, wantedCuby));
 			});
 
 
-			Debug.Log($"{pattern[FindCuby(pattern, wantedCuby)][1]}, {pattern[RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1][4]]}");
 			//replacer le UP pour le prochain tour
 			RotateUntil(pattern, orderList, 3, 1.0f, () => {
 				return
@@ -814,11 +815,17 @@ public class RubiksCube : MonoBehaviour
 			Rotate(pattern, orderList, index, -direction);
 		}
 
-		for (int i = 0; i < 9; i++)
-        {
-			if (!pattern[RubikData.UP[i]].Equals(objectivePattern[RubikData.UP[i]]))
-				Debug.Log($"nop pour le dessus:{pattern[RubikData.UP[i]]}, {objectivePattern[RubikData.UP[i]]}");
-        }
+
+
+		foreach (int i in RubikData.UP)
+		{
+			if (!pattern[i].Equals(objectivePattern[i]))
+			{
+				Debug.Log("----------nop for up");
+				Print<string>(pattern);
+				return null;
+			}
+		}
 		
 		
 		//deuxieme etage
@@ -891,9 +898,13 @@ public class RubiksCube : MonoBehaviour
 
 			//va a la face oppose ayant la couleur du bas du cuby
 			RotateUntil(pattern, orderList, 5, 1.0f, () => {
-				return pattern[FindCuby(pattern, wantedCuby)][0].ToString()
-					.Equals(
-					pattern[RubikData.opposedFace[RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]][4]]);
+				return RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]
+					==
+					RubikData.opposedFace[RubikData.TOUCHING_FACES[position][
+						wantedCuby[0].ToString().Equals(pattern[FindCuby(pattern, wantedCuby)][0].ToString()) ?
+							0:
+							1
+					]];
 			});
 
 
@@ -902,8 +913,14 @@ public class RubiksCube : MonoBehaviour
 			directionSide1 = 1.0f;
 			directionSide2 = 1.0f;
 			directionDown = 1.0f;
-			face1 = GetFaceFromColor(objectivePattern, pattern[FindCuby(pattern, wantedCuby)][0].ToString());
-			face2 = GetFaceFromColor(objectivePattern, pattern[FindCuby(pattern, wantedCuby)][1].ToString());
+			face1 = RubikData.TOUCHING_FACES[position][
+				wantedCuby[0].ToString().Equals(pattern[FindCuby(pattern, wantedCuby)][0].ToString()) ?
+							0:
+							1];
+			face2 = RubikData.TOUCHING_FACES[position][
+				wantedCuby[0].ToString().Equals(pattern[FindCuby(pattern, wantedCuby)][0].ToString()) ?
+							1:
+							0];
 
 
 
@@ -946,7 +963,17 @@ public class RubiksCube : MonoBehaviour
 
 			Rotate(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face2), -directionSide2);
         	}
-		
+
+
+		foreach (int i in new int[]{3, 5, 21, 23})
+		{
+			if (!pattern[i].Equals(objectivePattern[i]))
+			{
+				Debug.Log("----------nop for middle");
+				Print<string>(pattern);
+				return null;
+			}
+		}
 
 
 
@@ -983,8 +1010,15 @@ public class RubiksCube : MonoBehaviour
 
 		foreach (int position in new int[]{ 7, 15, 17, 25 })
 		{
-			if (pattern[position][0].ToString().Equals(objectivePattern[RubikData.DOWN[4]]))
-				wellOriented.Add(position);
+			if (pattern[FindCuby(pattern, objectivePattern[position])][0].ToString().Equals(objectivePattern[position][0].ToString()))
+				wellOriented.Add(FindCuby(pattern, objectivePattern[position]));
+		}
+
+		Debug.Log(wellOriented.Count);Print<string>(pattern);
+
+		foreach (var cuby in wellOriented)
+		{
+			Debug.Log(cuby);
 		}
 
 		switch (wellOriented.Count)
@@ -1000,7 +1034,7 @@ public class RubiksCube : MonoBehaviour
 			case 2:
 				if (RubikData.opposedFace[RubikData.TOUCHING_FACES[wellOriented[0]][1]] == RubikData.TOUCHING_FACES[wellOriented[1]][1])
 				{
-
+					Debug.Log("ligne");
 					if (wellOriented[0] == 7 || wellOriented[0] == 25)
 					{
 
@@ -1014,14 +1048,14 @@ public class RubiksCube : MonoBehaviour
 				}
 				else
 				{
-
+Debug.Log("L");
 					if (
 						(wellOriented[0] == 25 || wellOriented[1] == 25) &&
 						(wellOriented[0] == 15 || wellOriented[1] == 15)
 						)
                     {
 
-						Fururf(8, 0);
+						Fururf(8, 0);Debug.Log("cas 1");
 
 
 					}
@@ -1031,7 +1065,7 @@ public class RubiksCube : MonoBehaviour
 						)
                     {
 
-						Fururf(2, 8);
+						Fururf(2, 8);Debug.Log("cas 2");
 					}
 					else if (
 						(wellOriented[0] == 7 || wellOriented[1] == 7) &&
@@ -1039,18 +1073,28 @@ public class RubiksCube : MonoBehaviour
 						)
 					{
 
-						Fururf(6, 2);
+						Fururf(6, 2);Debug.Log("cas 3");
 					}
 					else
 					{
 
-						Fururf(0, 6);
+						Fururf(0, 6);Debug.Log("cas 4");
 					}
 				}			
 
 				break;
 		}
 
+
+		foreach (int i in new int[]{7, 15, 17, 25})
+		{
+			if (!pattern[FindCuby(pattern, objectivePattern[i])].Equals(objectivePattern[i]))
+			{
+				Debug.Log("----------nop for down cross");
+				Print<string>(pattern);
+				return null;
+			}
+		}
 
 
 
@@ -1088,7 +1132,7 @@ public class RubiksCube : MonoBehaviour
 				if (pattern[position].Equals(objectivePattern[position]))
 					return true;
 			}
-
+			
 
 			return false;
 		});
@@ -1355,8 +1399,8 @@ public class RubiksCube : MonoBehaviour
 				}
 			}
 			else
-            {
-				if (GetCubyFaceFromColor(chosenCuby, workPosition, objectivePattern[RubikData.DOWN[4]][0]) == RubikData.TOUCHING_FACES[workPosition][1])
+            {//----------------------------------------------------------------------le meme bug ici aussi-----------------------------------------------------//
+				if (chosenCuby[1].ToString().Equals(objectivePattern[FindCuby(objectivePattern, chosenCuby)][0].ToString()))
 				{
 					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
 				}
@@ -1370,9 +1414,7 @@ public class RubiksCube : MonoBehaviour
 
 		PASS:
 
-
 		RotateUntil(pattern, orderList, 5, 1.0f, () => {
-
 			return pattern[7].Equals(objectivePattern[7]);
 		
 		});
@@ -1382,9 +1424,8 @@ public class RubiksCube : MonoBehaviour
 		for(int i = 0; i < 27; i++)
         {
 			if (!pattern[i].Equals(objectivePattern[i]))
-				Debug.Log("nop");//return null;
+				return null;
         }
-
 		return orderList;
 
 	}

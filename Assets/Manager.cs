@@ -23,98 +23,6 @@ public class Manager : MonoBehaviour
 
 		cube.transform.parent = transform.parent;
 
-		/*
-		//Aucun n'est bien oriente
-		cube.Rotate(0, 1.0f);
-		cube.Rotate(0, 1.0f);
-		cube.Rotate(3, 1.0f);
-		cube.Rotate(4, -1.0f);
-		cube.Rotate(5, -1.0f);
-		cube.Rotate(2, 1.0f);
-		cube.Rotate(2, 1.0f);
-		*/
-
-		/*
-		//L cas 3 case 1 il est sur le devant try the other side
-		cube.Rotate(0, 1.0f);
-		cube.Rotate(3, 1.0f);
-		cube.Rotate(4, 1.0f);
-		cube.Rotate(5, -1.0f);
-		cube.Rotate(2, 1.0f);
-		cube.Rotate(2, 1.0f);
-		cube.Rotate(3, -1.0f);
-		*/
-
-		/*
-		//L cas 4
-		cube.Rotate(0, 1.0f);
-		cube.Rotate(3, 1.0f);
-		cube.Rotate(4, -1.0f);
-		cube.Rotate(5, -1.0f);
-		cube.Rotate(2, 1.0f);
-		cube.Rotate(2, 1.0f);
-		cube.Rotate(3, -1.0f);
-		*/
-
-		/*
-		//L cas 2
-		cube.Rotate(0, 1.0f);
-		cube.Rotate(3, 1.0f);
-		cube.Rotate(4, 1.0f);
-		cube.Rotate(5, -1.0f);
-		cube.Rotate(2, 1.0f);
-		cube.Rotate(8, 1.0f);
-		cube.Rotate(3, -1.0f);
-		cube.Rotate(3, -1.0f);
-		cube.Rotate(5, 1.0f);
-		cube.Rotate(6, 1.0f);
-		cube.Rotate(7, -1.0f);
-		*/
-
-		/*
-		//ligne cas 1
-		cube.Rotate(0, -1.0f);
-		cube.Rotate(3, 1.0f);
-		cube.Rotate(4, 1.0f);
-		cube.Rotate(5, -1.0f);
-		cube.Rotate(2, -1.0f);
-		cube.Rotate(8, 1.0f);
-		cube.Rotate(3, -1.0f);
-		cube.Rotate(3, -1.0f);
-		cube.Rotate(5, 1.0f);
-		cube.Rotate(6, 1.0f);
-		cube.Rotate(7, 1.0f);
-		*/
-
-		/*
-		//ligne cas 2
-		cube.Rotate(0, 1.0f);
-		cube.Rotate(3, 1.0f);
-		cube.Rotate(4, 1.0f);
-		cube.Rotate(5, 1.0f);
-		cube.Rotate(2, 1.0f);
-		cube.Rotate(8, 1.0f);
-		cube.Rotate(3, -1.0f);
-		cube.Rotate(3, -1.0f);
-		cube.Rotate(5, 1.0f);
-		cube.Rotate(6, 1.0f);
-		cube.Rotate(7, -1.0f);
-		*/
-
-		/*
-		//deja fait
-		cube.Rotate(0, 1.0f);
-		cube.Rotate(3, 1.0f);
-		cube.Rotate(4, 1.0f);
-		cube.Rotate(5, -1.0f);
-		cube.Rotate(2, 1.0f);
-		cube.Rotate(2, 1.0f);
-		cube.Rotate(3, -1.0f);
-		cube.Rotate(3, -1.0f);
-		cube.Rotate(5, 1.0f);
-		cube.Rotate(6, 1.0f);
-		cube.Rotate(7, -1.0f);
-		*/
 
 
 
@@ -125,7 +33,21 @@ public class Manager : MonoBehaviour
 		//cube.Randomize();
 
 		//cube.GetJSON((json) => { Debug.Log(json); });
-		cube.Solve(new string[] {"WOB", "OY", "WGO", "YB", "R", "WR", "YOG", "GW", "GWR", "BR", "G", "BO", "Y", "none", "W", "WB", "B", "YR", "BYR", "GR", "BRW", "YG", "O", "OW", "YBO", "OG", "GRY"});
+
+		string[] pattern2 = (string[]) RubikData.DEFAULT_PATTERN.Clone();
+
+		pattern[10] = "Y";
+		pattern[16] = "W";
+		pattern[4] = "R";
+		pattern[14] = "B";
+		pattern[22] = "O";
+		pattern[12] = "G";
+
+
+		cube.Solve(pattern2);
+		//cube.Solve(new string[]{"RWB","RG","RGW","BW","R","YR","YBO","BO","OWG","WO","W","YO","G","none","B","BY","Y","YG","WOB","RB","YOG","RW","O","WG","YRB","OG","GRY"});
+		//cube.Solve(new string[]{"GRY","YB","RBY","YO","R","GR","WGO","YG","GWR","OW","W","BO","G","none","B","BW","Y","WG","YBO","RB","BWO","RY","O","WR","GYO","GO","BRW"});
+		//cube.Solve(new string[] {"WOB", "OY", "WGO", "YB", "R", "WR", "YOG", "GW", "GWR", "BR", "G", "BO", "Y", "none", "W", "WB", "B", "YR", "BYR", "GR", "BRW", "YG", "O", "OW", "YBO", "OG", "GRY"});
 	}
 
 }
