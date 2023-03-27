@@ -36,12 +36,13 @@ public class Manager : MonoBehaviour
 
 		string[] pattern2 = (string[]) RubikData.DEFAULT_PATTERN.Clone();
 
-		pattern[10] = "Y";
-		pattern[16] = "W";
-		pattern[4] = "R";
-		pattern[14] = "B";
-		pattern[22] = "O";
-		pattern[12] = "G";
+		pattern2[4] = "R";
+		pattern2[10] = "Y";
+		pattern2[12] = "B";
+		pattern2[14] = "G";
+		pattern2[16] = "W";
+		pattern2[22] = "O";
+		
 
 
 		cube.Solve(pattern2);

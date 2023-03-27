@@ -633,22 +633,39 @@ public class RubiksCube : MonoBehaviour
 			IsCubyOn(RubikData.FRONT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
 			IsCubyOn(RubikData.BACK, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
 			IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{Debug.Log("banane");
+		{
+			Debug.Log("1");
 			RotateUntil(pattern, orderList, 7, 1.0f, () => {
 				return pattern[RubikData.UP[4]] == objectivePattern[RubikData.UP[4]];
 			});
 		}
 		else if (IsCubyOn(RubikData.LEFT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{Debug.Log("banane L");
+		{
+			Debug.Log("2");
 			Rotate(pattern, orderList, 1, -1.0f);
 		}
 		else if (IsCubyOn(RubikData.RIGHT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
-		{Debug.Log("banane R");
+		{
+			Debug.Log("3");
 			Rotate(pattern, orderList, 1, 1.0f);
 		}
 		RotateUntil(pattern, orderList, 4, 1.0f, () => {
-			return pattern[RubikData.FRONT[4]] == objectivePattern[RubikData.FRONT[4]];
+			return pattern[RubikData.FRONT[4]].Equals(objectivePattern[RubikData.FRONT[4]]);
 		});
+
+
+
+		foreach (int position in new int[] { RubikData.FRONT[4], RubikData.UP[4], RubikData.BACK[4], RubikData.DOWN[4], RubikData.LEFT[4], RubikData.RIGHT[4] })
+        {
+			if (!pattern[position].Equals(objectivePattern[position]))
+            {
+				Debug.Log("middles not ok");
+				return null;
+            }
+        }
+
+
+
 
 
 		//Faire la croix du dessus
@@ -1014,13 +1031,6 @@ public class RubiksCube : MonoBehaviour
 				wellOriented.Add(FindCuby(pattern, objectivePattern[position]));
 		}
 
-		Debug.Log(wellOriented.Count);Print<string>(pattern);
-
-		foreach (var cuby in wellOriented)
-		{
-			Debug.Log(cuby);
-		}
-
 		switch (wellOriented.Count)
 		{
 			case 0:
@@ -1048,14 +1058,13 @@ public class RubiksCube : MonoBehaviour
 				}
 				else
 				{
-Debug.Log("L");
 					if (
 						(wellOriented[0] == 25 || wellOriented[1] == 25) &&
 						(wellOriented[0] == 15 || wellOriented[1] == 15)
 						)
                     {
 
-						Fururf(8, 0);Debug.Log("cas 1");
+						Fururf(8, 0);
 
 
 					}
@@ -1065,7 +1074,7 @@ Debug.Log("L");
 						)
                     {
 
-						Fururf(2, 8);Debug.Log("cas 2");
+						Fururf(2, 8);
 					}
 					else if (
 						(wellOriented[0] == 7 || wellOriented[1] == 7) &&
@@ -1073,12 +1082,12 @@ Debug.Log("L");
 						)
 					{
 
-						Fururf(6, 2);Debug.Log("cas 3");
+						Fururf(6, 2);
 					}
 					else
 					{
 
-						Fururf(0, 6);Debug.Log("cas 4");
+						Fururf(0, 6);
 					}
 				}			
 
@@ -1234,7 +1243,14 @@ Debug.Log("L");
 		}
 
 
-		
+		foreach (int position in new int[] { 7, 15, 17, 25})
+        {
+			if (!pattern[position].Equals(objectivePattern[position]))
+            {
+				Debug.Log("down cross misplaced");
+				return null;
+            }
+        }
 
 
 		//bien placer les coins
@@ -1308,10 +1324,10 @@ Debug.Log("L");
 			)
         {
 			int workCorner = wellPlaced[0];
-			backupPattern = (string[])pattern.Clone();
-
+			backupPattern = (string[]) pattern.Clone();
+			Print<string>(pattern);return orderList;
 			Luruluru(RubikData.LURULURU_MAP[workCorner][0], RubikData.LURULURU_MAP[workCorner][1]);
-
+			Print<string>(pattern);
 			if (
 				FindCuby(pattern, objectivePattern[6]) != 6 ||
 				FindCuby(pattern, objectivePattern[8]) != 8 ||
@@ -1321,10 +1337,10 @@ Debug.Log("L");
 			{
 				for (int i = 8; i != 0; i--)
 					orderList.RemoveAt(orderList.Count - 1);
-
+				Debug.Log("not ok");
 				pattern = backupPattern;
-
-				Rulurulu(RubikData.RULURULU_MAP[workCorner][0], RubikData.RULURULU_MAP[workCorner][1]);
+				Print<string>(pattern);
+				Rulurulu(RubikData.RULURULU_MAP[workCorner][0], RubikData.RULURULU_MAP[workCorner][1]); Print<string>(pattern);Debug.Log("now we should be done");
 			}
 		}
 
@@ -1336,9 +1352,23 @@ Debug.Log("L");
 
 
 
-		
+		foreach (int position in new int[] { 6, 8, 24, 26 })
+		{
+			if (FindCuby(pattern, objectivePattern[position]) != position)
+			{
+				Debug.Log("down corners misplaced");
+				return orderList;
+			}
+		}
 
-		
+
+
+
+
+
+
+
+
 		//bien oriente les coins
 		List<string> badlyOriented = new List<string>();
 		void Fdfd(int f)
