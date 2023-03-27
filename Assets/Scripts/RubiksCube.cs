@@ -18,8 +18,6 @@ public class RubiksCube : MonoBehaviour
 	{
 		RubiksCube cube = Instantiate(Resources.Load<GameObject>("Rubik's Cube")).GetComponent<RubiksCube>();
 		cube.currentPattern = (string[]) RubikData.DEFAULT_PATTERN.Clone();
-		cubeList.Add(cube);
-		cube.Id = cubeCounter++;
 
 		for (int i = 0; i < RubikData.DEFAULT_PATTERN.Length; i++)
         	{
@@ -76,7 +74,7 @@ public class RubiksCube : MonoBehaviour
 
 		foreach (RotateOrder order in list)
         {
-			cube.index = order.Index;
+			cube.Index = order.Index;
 			cube.direction = order.Direction;
 			cube.OrderList.Insert(0, order);
         }
@@ -339,28 +337,6 @@ public class RubiksCube : MonoBehaviour
 
 
 
-
-
-
-
-
-
-
-
-	//-------------------PRIVATE STATIC ATTRIBUTS----------------------//
-	private static int cubeCounter = 0;
-
-
-	//-------------------PROTECTED STATIC ATTRIBUTS----------------------//
-	protected static List<RubiksCube> cubeList = new List<RubiksCube>();
-	
-
-	//-------------------PUBLIC ATTRIBUTS---------------------------//
-	public int Id { get; private set; }
-
-
-
-
 	//----------------PROTECTED ATTRIBUTS---------------------------------//
 	
 	//variable de controle
@@ -406,6 +382,16 @@ public class RubiksCube : MonoBehaviour
 	//Entre 0 et 8, indique quel partie du cube est selectionnee pour tourner
 	protected int index;
 
+	public int Index {
+		get => index;
+		set {
+			if (value < 0)
+				return;
+			if (value > 8)
+				return;
+			index = value;
+		}
+	}
 
 
 
@@ -452,42 +438,6 @@ public class RubiksCube : MonoBehaviour
 
 
 	//-------------PRIVATE METHODES-----------------------------------------------------//
-
-
-
-	void Update()
-	{
-		if (!isRotating)
-		{
-			if (Input.GetKeyDown(KeyCode.A))
-			{
-				OrderList.Add(new RotateOrder(index, 1.0f));
-			}
-			if (Input.GetKeyDown(KeyCode.D))
-			{
-				OrderList.Add(new RotateOrder(index, -1.0f));
-			}
-			else if (Input.GetKeyDown(KeyCode.LeftArrow))
-			{
-				if (index != 0)
-				{
-					index -= 1;
-				}
-			}
-			else if (Input.GetKeyDown(KeyCode.RightArrow))
-			{
-				if (index != 8)
-				{
-					index += 1;
-				}
-			}
-			
-		}
-	}
-
-
-
-
 	void FixedUpdate()
     	{
 		if (isRotating)
@@ -501,7 +451,7 @@ public class RubiksCube : MonoBehaviour
 		else if (randomCounter == 0)
 		{
 			direction = lastDirection;
-			index = lastIndex;
+			Index = lastIndex;
 			randomCounter = -1;
 
 
@@ -520,7 +470,7 @@ public class RubiksCube : MonoBehaviour
     void Awake()
     {
 		isRotating = false;
-		index = 0;
+		Index = 0;
 		randomCounter = -1;
 
 		bufferPositions = new Transform[9];
@@ -554,7 +504,7 @@ public class RubiksCube : MonoBehaviour
 		{
 			RotateOrder rotateOrder = (RotateOrder) currentOrder;
 
-			index = rotateOrder.Index;
+			Index = rotateOrder.Index;
 			direction = rotateOrder.Direction;
 
 			RotateBegin();
@@ -617,7 +567,7 @@ public class RubiksCube : MonoBehaviour
 	{
 		randomCounter = 20;
 		lastDirection = direction;
-		lastIndex = index;
+		lastIndex = Index;
 
 		NextRandom();
 	}
@@ -675,7 +625,7 @@ public class RubiksCube : MonoBehaviour
 			//Si sur UP, descendre
 			if (IsCubyOn(RubikData.UP, FindCuby(pattern, wantedCuby)))
 			{
-				index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
+				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
 				int refPosition = FindCuby(pattern, cubyRef);
 				Rotate(pattern, orderList, index, -1.0f);
 				cubyRef = pattern[refPosition];
@@ -687,7 +637,7 @@ public class RubiksCube : MonoBehaviour
 				});
 				
 				
-				index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
+				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
 
 				Rotate(pattern, orderList, index, 1.0f);
 
@@ -739,7 +689,7 @@ public class RubiksCube : MonoBehaviour
 			//Si sur le dessus
 			if (IsCubyOn(RubikData.UP, FindCuby(pattern, wantedCuby)))
 			{
-				index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
+				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
 				float firstDirection = 1.0f;
 
 				//descendre
@@ -771,7 +721,7 @@ public class RubiksCube : MonoBehaviour
 
 
 
-				index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
+				int index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
 				float oldDirection = 1.0f;
 				int[][] oldFaces = RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)];
 
@@ -1659,7 +1609,7 @@ public class RubiksCube : MonoBehaviour
 	protected void NextRandom()
     	{
 
-		index = random.Next(0, 9);
+		Index = random.Next(0, 9);
 		direction = random.Next(0, 2) == 0 ? 1.0f : -1.0f;
 
 
