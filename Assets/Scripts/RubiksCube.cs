@@ -75,7 +75,7 @@ public class RubiksCube : MonoBehaviour
 		foreach (RotateOrder order in list)
         {
 			cube.Index = order.Index;
-			cube.direction = order.Direction;
+			cube.Direction = order.Direction;
 			cube.OrderList.Insert(0, order);
         }
 
@@ -349,6 +349,17 @@ public class RubiksCube : MonoBehaviour
 
 	// -1.0f ou 1.0f, definisse dans quelle direction tourner
 	protected float direction;
+
+	public float Direction
+	{
+		get => direction;
+		set
+		{
+			if (value != -1.0f && value != 1.0f)
+				return;
+			direction = value;
+		}
+	}
 
 
 	//Variable utilisee pour melanger le cube
