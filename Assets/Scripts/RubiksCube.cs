@@ -17,6 +17,7 @@ public class RubiksCube : MonoBehaviour
 	public static RubiksCube GenerateCube(string[] pattern)
 	{
 		RubiksCube cube = Instantiate(Resources.Load<GameObject>("Rubik's Cube")).GetComponent<RubiksCube>();
+		
 		cube.currentPattern = (string[]) RubikData.DEFAULT_PATTERN.Clone();
 
 		for (int i = 0; i < RubikData.DEFAULT_PATTERN.Length; i++)
@@ -526,13 +527,13 @@ public class RubiksCube : MonoBehaviour
 
 			string[] pattern = (string[])currentPattern.Clone();
 			List<Order> result = StartSolve(pattern, solveOrder.Pattern);
-
+			
 			if (result == null)
 			{
 				Debug.Log("Introuvable");
 				goto END;
 			}
-
+			Debug.Log(result.Count);
 			result.Reverse();
 
 			foreach (Order order in result)
@@ -1363,7 +1364,6 @@ public class RubiksCube : MonoBehaviour
 			RotateUntil(pattern, orderList, 5, 1.0f, () => {
 				return FindCuby(pattern, chosenCuby) == workPosition;
 			});
-
 			if (workPosition == 6 || workPosition == 26)
             {
 				//---------------------------------------------------bug recemment corrige ici-------------------------------------------------//
@@ -1378,7 +1378,7 @@ public class RubiksCube : MonoBehaviour
 			}
 			else
             {//----------------------------------------------------------------------le meme bug ici aussi-----------------------------------------------------//
-				if (chosenCuby[1].ToString().Equals(objectivePattern[FindCuby(objectivePattern, chosenCuby)][0].ToString()))
+				if (chosenCuby[2].ToString().Equals(objectivePattern[FindCuby(objectivePattern, chosenCuby)][0].ToString()))
 				{
 					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
 				}
@@ -1402,7 +1402,12 @@ public class RubiksCube : MonoBehaviour
 		for(int i = 0; i < 27; i++)
         {
 			if (!pattern[i].Equals(objectivePattern[i]))
+            {
+				Debug.Log("nop for complete cube");Print<string>(objectivePattern);
+				Print<string>(pattern);
 				return null;
+			}
+				
         }
 		return orderList;
 
