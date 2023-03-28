@@ -533,7 +533,7 @@ public class RubiksCube : MonoBehaviour
 				Debug.Log("Introuvable");
 				goto END;
 			}
-			Debug.Log(result.Count);
+
 			result.Reverse();
 
 			foreach (Order order in result)
@@ -1404,6 +1404,7 @@ public class RubiksCube : MonoBehaviour
 			if (!pattern[i].Equals(objectivePattern[i]))
             {
 				Debug.Log("nop for complete cube");Print<string>(objectivePattern);
+				Print<string>(pattern);
 				Print<string>(pattern);
 				return null;
 			}
