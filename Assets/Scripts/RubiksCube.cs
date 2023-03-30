@@ -344,7 +344,7 @@ public class RubiksCube : MonoBehaviour
 	protected bool isRotating;
 
 	//variables pour l'animation de rotation
-	protected const float ROTATION_SPEED = 3.0f * (90.0f / 60.0f);
+	protected const float ROTATION_SPEED = 10.0f * (90.0f / 60.0f);
 	protected float degreeCounter;
 
 
@@ -1798,7 +1798,7 @@ public class RubiksCube : MonoBehaviour
 	}
 
 
-	protected static void Print<T>(T[] pattern)
+	public static void Print<T>(T[] pattern)
 	{
 		string message = "[";
 

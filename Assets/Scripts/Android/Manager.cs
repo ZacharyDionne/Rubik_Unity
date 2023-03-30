@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace Android
@@ -10,6 +11,9 @@ namespace Android
         private Camera gameCamera;
 
         private RubiksCube cube;
+
+        [SerializeField]
+        private TMP_InputField inputField;
 
         private int index = 0;
 
@@ -51,12 +55,35 @@ namespace Android
         {
             Destroy(cube.gameObject);
 
+            string json = inputField.text;
+
+            
 
 
+            string[] pattern = new string[27];
+            pattern[13] = "none";
+            int position = 0;
+            for (int i = 0; i < json.Length; i++)
+            {
+                if (json[i].Equals('"'))
+                {
+                    i++;
+                    string cuby = "";
+                    while (!json[i].Equals('"'))
+                    {
+                        cuby += json[i];
+                        i++;
+                    }
+                    pattern[position] = cuby;
+                    position++;
+                    Debug.Log(cuby + ", " + position);
+                }
+            }
 
+            RubiksCube.Print<string>(pattern);
+            
 
-
-            cube = RubiksCube.GenerateCube(RubikData.DEFAULT_PATTERN);
+            cube = RubiksCube.GenerateCube(pattern);
 
         }
 

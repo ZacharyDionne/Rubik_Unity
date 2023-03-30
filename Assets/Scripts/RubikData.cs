@@ -4,33 +4,33 @@ using UnityEngine;
 public class RubikData
 {
     public static string[] DEFAULT_PATTERN = {
-		"WBR",	//0 UP
-		"WB",	//1 UP
-		"WOB",	//2 UP
-		"RB",	//3 LEFT
-		"B",	//4 FRONT DECLARATION
-		"OB",	//5 RIGHT
-		"YRB",	//6 DOWN
-		"YB",	//7 DOWN
-		"YBO",	//8 DOWN
-		"WR",	//9 UP
-		"W",	//10 UP DECLARATION
-		"WO",	//11 UP
-		"R",	//12 LEFT DECLARATION
-		"none", //13
-		"O",	//14 RIGHT DECLARATION
-		"YR",	//15 DOWN
-		"Y",	//16 DOWN DECLARATION
-		"YO",	//17 DOWN
-		"WRG",	//18 UP
-		"WG",	//19 UP
-		"WGO",	//20 UP
-		"RG",	//21 LEFT
-		"G",	//22 BACK DECLARATION
-		"OG",	//23 RIGHT
-		"YGR",	//24 DOWN
-		"YG",	//25 DOWN
-		"YOG"	//26 DOWN
+		"WBR",	
+		"WB",	
+		"WOB",	
+		"RB",	
+		"B",	
+		"OB",	
+		"YRB",	
+		"YB",	
+		"YBO",	
+		"WR",	
+		"W",	
+		"WO",	
+		"R",	
+		"none", 
+		"O",	
+		"YR",	
+		"Y",	
+		"YO",	
+		"WRG",	
+		"WG",	
+		"WGO",	
+		"RG",	
+		"G",	
+		"OG",	
+		"YGR",	
+		"YG",	
+		"YOG"	
 	};
 
 
