@@ -76,5 +76,35 @@ namespace Android
             cube.Index--;
         }
 
+
+
+
+        public void Copy()
+        {
+            
+            cube.GetJSON((json) => {
+                /*TextEditor te = new TextEditor();
+                te.text = json;
+                te.SelectAll();
+                te.Copy();*/
+                Debug.Log("ok");
+                GUIUtility.systemCopyBuffer = json;
+            });
+        }
+
+        public void Copy2()
+        {
+
+            cube.GetJSON((json) => {
+                TextEditor te = new TextEditor();
+                te.text = json;
+                te.SelectAll();
+                te.Copy();
+            });
+        }
+
     }
+
+    
+
 }

@@ -203,7 +203,7 @@ public class RubiksCube : MonoBehaviour
 		return name.Length == 1;
 	}
 
-	protected int[] GetCubyFaceFromColor(string cuby, int position, char color)
+	protected static int[] GetCubyFaceFromColor(string cuby, int position, char color)
     {
 		return RubikData.colorFaceMap[position][cuby.IndexOf(color)];
     }
@@ -474,7 +474,6 @@ public class RubiksCube : MonoBehaviour
 
 
 		}
-
 		NextOrder();
 	}
 
@@ -880,7 +879,7 @@ public class RubiksCube : MonoBehaviour
 					]];
 			});
 
-
+			
 			
 			cubyRef = pattern[position];
 			directionSide1 = 1.0f;
@@ -1427,6 +1426,915 @@ public class RubiksCube : MonoBehaviour
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	public static List<Order> StartSolve2(string[] pattern, string[] objectivePattern)
+	{
+		List<Order> orderList = new List<Order>();
+		int index;
+		float direction;
+
+		//Positionnement des milieux
+		if (
+			IsCubyOn(RubikData.FRONT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.BACK, FindCuby(pattern, objectivePattern[RubikData.UP[4]])) ||
+			IsCubyOn(RubikData.DOWN, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
+		{
+			RotateUntil(pattern, orderList, 7, 1.0f, () => {
+				return pattern[RubikData.UP[4]] == objectivePattern[RubikData.UP[4]];
+			});
+		}
+		else if (IsCubyOn(RubikData.LEFT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
+		{
+			Rotate(pattern, orderList, 1, -1.0f);
+		}
+		else if (IsCubyOn(RubikData.RIGHT, FindCuby(pattern, objectivePattern[RubikData.UP[4]])))
+		{
+			Rotate(pattern, orderList, 1, 1.0f);
+		}
+		RotateUntil(pattern, orderList, 4, 1.0f, () => {
+			return pattern[RubikData.FRONT[4]].Equals(objectivePattern[RubikData.FRONT[4]]);
+		});
+
+
+
+		foreach (int position in new int[] { RubikData.FRONT[4], RubikData.UP[4], RubikData.BACK[4], RubikData.DOWN[4], RubikData.LEFT[4], RubikData.RIGHT[4] })
+		{
+			if (!pattern[position].Equals(objectivePattern[position]))
+			{
+				Debug.Log("middles not ok");
+				return null;
+			}
+		}
+
+
+		
+
+
+		//Faire la croix du dessus
+		foreach (int position in new int[] { 1, 9, 11, 19 })
+		{
+			string cubyRef = pattern[position];
+			string wantedCuby = objectivePattern[position];
+
+			if (pattern[position].Equals(wantedCuby))
+				continue;
+
+			//Si sur UP, descendre
+			if (IsCubyOn(RubikData.UP, FindCuby(pattern, wantedCuby)))
+			{
+				index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
+				int refPosition = FindCuby(pattern, cubyRef);
+				Rotate(pattern, orderList, index, -1.0f);
+				cubyRef = pattern[refPosition];
+			}//Si sur la face du bas, il faut aligner les references, monter et puis mettre a jour la reference
+			else if (IsCubyOn(RubikData.DOWN, FindCuby(pattern, wantedCuby)))
+			{
+				
+				RotateUntil(pattern, orderList, 3, 1.0f, () => {
+					return RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1] == RubikData.TOUCHING_FACES[FindCuby(pattern, cubyRef)][1];
+				});
+
+				index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
+
+				Rotate(pattern, orderList, index, 1.0f);
+
+				cubyRef = pattern[RubikData.rotationPositions[index, 1]];
+			}
+
+			//on aligne le haut
+			RotateUntil(pattern, orderList, 3, 1.0f, () => {
+				return (//---------------------bug recemment corrige ici---------------------------//
+					pattern[FindCuby(pattern, wantedCuby)][0].ToString().Equals(objectivePattern[position][0].ToString()) ?
+						RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1] :
+						RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][0])
+					.Equals(
+					RubikData.TOUCHING_FACES[FindCuby(pattern, cubyRef)][1]);
+			});
+
+
+			//go up until is on UP
+			RotateUntil(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, cubyRef)][1]), 1.0f, () => {
+				return IsCubyOn(RubikData.UP, FindCuby(pattern, wantedCuby));
+			});
+
+
+			//replacer le UP pour le prochain tour
+			RotateUntil(pattern, orderList, 3, 1.0f, () => {
+				return
+					pattern[position]
+					.Equals(
+						objectivePattern[position]
+					);
+			});
+
+		}
+
+
+
+
+
+		//Faire la face du dessus
+		foreach (int position in new int[] { 0, 2, 18, 20 })
+		{
+			string wantedCuby = objectivePattern[position];
+
+			if (pattern[position].Equals(wantedCuby))
+				continue;
+
+
+
+			//Si sur le dessus
+			if (IsCubyOn(RubikData.UP, FindCuby(pattern, wantedCuby)))
+			{
+				index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]);
+				float firstDirection = 1.0f;
+
+				//descendre
+				firstDirection = RotateWith(pattern, orderList, index, firstDirection, () => {
+					return IsCubyOn(RubikData.DOWN, FindCuby(pattern, wantedCuby));
+				});
+
+
+				//on deplace le bas
+				direction = RotateWith(pattern, orderList, 5, 1.0f, () => {
+					return !(
+						Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][0]) == index ||
+						Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]) == index);
+				});
+
+				//remonter la face
+				Rotate(pattern, orderList, index, -firstDirection);
+			}
+
+			/*---------------------------------------------correction recente ici----------------------------------------------*/
+			//Si la couleur up du cuby est sur le dessous
+			if (pattern[FindCuby(pattern, wantedCuby)][0].ToString().Equals(wantedCuby[0].ToString()))
+			{
+				//d'abord, on l'aligne avec le dessus
+				RotateUntil(pattern, orderList, 5, 1.0f, () => {
+					return RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1] == RubikData.TOUCHING_FACES[position][1] &&
+						RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][2] == RubikData.TOUCHING_FACES[position][2];
+				});
+
+
+
+				index = Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]); Debug.Log(index);
+				float oldDirection = 1.0f;
+				int[][] oldFaces = RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)];
+
+				//on descend
+				oldDirection = RotateWith(pattern, orderList, index, oldDirection, () => {
+					return !IsCubyOn(RubikData.UP, FindCuby(pattern, wantedCuby));
+				});
+
+				//On deplace le bas
+				RotateWith(pattern, orderList, 5, 1.0f, () =>
+				{
+					return !IsCubyOn(oldFaces[1], FindCuby(pattern, wantedCuby));
+				});
+
+				//on remonte la face
+				Rotate(pattern, orderList, index, -oldDirection);
+			}
+
+			//on realigne le cuby en vu de le monter
+			RotateUntil(pattern, orderList, 5, 1.0f, () => {
+				return RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1] == RubikData.TOUCHING_FACES[position][1] &&
+					RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][2] == RubikData.TOUCHING_FACES[position][2];
+			});
+
+			//------------------------------BUG RECEMMENT CORRIGE ICI-----------------------------------------------------------------------//
+			/*index = Array.IndexOf(
+				RubikData.indexFaceMap,
+				GetCubyFaceFromColor(
+					pattern[FindCuby(pattern, wantedCuby)],
+					FindCuby(pattern, wantedCuby),
+					objectivePattern[RubikData.UP[4]][0]));*/
+			index = Array.IndexOf(
+				RubikData.indexFaceMap,
+				GetCubyFaceFromColor(
+					pattern[FindCuby(pattern, wantedCuby)],
+					FindCuby(pattern, wantedCuby),
+					objectivePattern[position][0]));
+			int oldPosition = FindCuby(pattern, wantedCuby);
+			direction = 1.0f;
+
+			//on descend
+			direction = RotateWith(pattern, orderList, index, direction, () => {
+				return !IsCubyOn(RubikData.UP, FindCuby(pattern, wantedCuby));
+			});
+
+			//on tourne le bas jusqu'a sa bonne position
+			RotateUntil(pattern, orderList, 5, 1.0f, () => {
+				return FindCuby(pattern, objectivePattern[position]) == oldPosition;
+			});
+
+
+			//on remonte la face
+			Rotate(pattern, orderList, index, -direction);
+		}
+
+
+
+		foreach (int i in RubikData.UP)
+		{
+			if (!pattern[i].Equals(objectivePattern[i]))
+			{
+				Debug.Log("----------nop for up");
+				return null;
+			}
+		}
+
+
+		//deuxieme etage
+		foreach (int position in new int[] { 3, 5, 21, 23 })
+		{
+			string wantedCuby = objectivePattern[position];
+			int[] face1, face2;
+			float directionSide1, directionSide2, directionDown;
+			string cubyRef;
+
+			if (pattern[position].Equals(wantedCuby))
+				continue;
+
+			
+
+			//Si cuby n'est pas sur la face du bas
+			if (!IsCubyOn(RubikData.DOWN, FindCuby(pattern, wantedCuby)))
+			{
+				face1 = RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][0];
+				face2 = RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1];
+				directionSide1 = 1.0f;
+				directionSide2 = 1.0f;
+				directionDown = 1.0f;
+
+
+				//descendre
+				directionSide1 = RotateWith(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face1), directionSide1, () => {
+					return IsCubyOn(RubikData.DOWN, FindCuby(pattern, wantedCuby));
+				});
+
+				//tourner le bas
+				directionDown = RotateWith(pattern, orderList, 5, directionDown, () => {
+					return RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1] == face2;
+				});
+
+				//remonte
+				Rotate(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face1), -directionSide1);
+
+				//realigne le coin blanc
+				Rotate(pattern, orderList, 5, -directionDown);
+
+
+
+
+
+
+
+				cubyRef = Array.Find<string>(pattern, (str) => {
+					int position = FindCuby(pattern, str);
+
+					return IsCubyOn(face1, position) && IsCubyOn(face2, position) && IsCubyOn(RubikData.DOWN, position);
+				});
+
+
+
+				//descendre le deuxieme cote
+				directionSide2 = RotateWith(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face2), directionSide2, () => {
+					return IsCubyOn(RubikData.DOWN, FindCuby(pattern, cubyRef));
+				});
+
+				//tourner pour que la reference soit sur la face 1
+				RotateWith(pattern, orderList, 5, 1.0f, () => {
+					return IsCubyOn(face1, FindCuby(pattern, cubyRef)) && IsCubyOn(face2, FindCuby(pattern, cubyRef));
+				});
+
+				//remonter le deuxieme cote
+				Rotate(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face2), -directionSide2);
+			}
+
+			if (position == 5)
+				Print<string>(pattern);
+
+			//va a la face oppose ayant la couleur du bas du cuby
+			RotateUntil(pattern, orderList, 5, 1.0f, () => {
+				return RubikData.TOUCHING_FACES[FindCuby(pattern, wantedCuby)][1]
+					==
+					RubikData.opposedFace[RubikData.TOUCHING_FACES[position][
+						wantedCuby[0].ToString().Equals(pattern[FindCuby(pattern, wantedCuby)][0].ToString()) ?
+							0 :
+							1
+					]];
+			});
+			if (position == 5)
+				Print<string>(pattern);
+
+			cubyRef = pattern[position];
+			directionSide1 = 1.0f;
+			directionSide2 = 1.0f;
+			directionDown = 1.0f;
+			face1 = RubikData.TOUCHING_FACES[position][
+				wantedCuby[0].ToString().Equals(pattern[FindCuby(pattern, wantedCuby)][0].ToString()) ?
+							0 :
+							1];
+			face2 = RubikData.TOUCHING_FACES[position][
+				wantedCuby[0].ToString().Equals(pattern[FindCuby(pattern, wantedCuby)][0].ToString()) ?
+							1 :
+							0];
+
+
+
+			//tourne la face de couleur oppose pour que le cubyRef (cuby ayant la place ou on veut aller) soit en bas
+			directionSide1 = RotateWith(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face1), directionSide1, () => {
+				return IsCubyOn(RubikData.DOWN, FindCuby(pattern, cubyRef));
+			});
+
+
+
+			//tourne le bas afin que le cubyRef soit sur la face oppose
+			directionDown = RotateWith(pattern, orderList, 5, directionDown, () => {
+				return IsCubyOn(face2, FindCuby(pattern, cubyRef));
+			});
+
+			//remonte
+			Rotate(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face1), -directionSide1);
+
+			//replace le bas
+			Rotate(pattern, orderList, 5, -directionDown);
+
+
+
+
+			cubyRef = Array.Find<string>(pattern, (str) => {
+				int position = FindCuby(pattern, str);
+
+				return IsCubyOn(face1, position) && IsCubyOn(face2, position) && IsCubyOn(RubikData.DOWN, position);
+			});
+
+
+			directionSide2 = RotateWith(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face2), directionSide2, () => {
+				return IsCubyOn(RubikData.DOWN, FindCuby(pattern, cubyRef));
+			});
+
+
+			RotateWith(pattern, orderList, 5, 1.0f, () => {
+				return IsCubyOn(face1, FindCuby(pattern, cubyRef)) && IsCubyOn(face2, FindCuby(pattern, cubyRef));
+			});
+
+			Rotate(pattern, orderList, Array.IndexOf(RubikData.indexFaceMap, face2), -directionSide2);
+		}
+
+
+		foreach (int i in new int[] { 3, 5, 21, 23 })
+		{
+			if (!pattern[i].Equals(objectivePattern[i]))
+			{
+				Debug.Log("----------nop for middle");
+				return null;
+			}
+		}
+
+
+
+		//Faire la croix du dessous
+		//obtenir le nombre de jaune bien oriente
+		List<int> wellOriented = new List<int>();
+
+
+
+		//Definition des fonctions locales. Ces fonctions seront utiles uniquement ici,
+		//alors on les declare a l'interieur. Ils ont les noms qui est donnee a ces sequences
+		//de mouvement. Voir le livrable.
+		void Fururf(int f, int r)
+		{
+
+			Rotate(pattern, orderList, f, RubikData.DIRECTION_CORRECTION[f]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, f, -RubikData.DIRECTION_CORRECTION[f]);
+
+		};
+		void Fruruf(int f, int r)
+		{
+
+			Rotate(pattern, orderList, f, RubikData.DIRECTION_CORRECTION[f]);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, f, -RubikData.DIRECTION_CORRECTION[f]);
+
+		};
+
+
+		foreach (int position in new int[] { 7, 15, 17, 25 })
+		{
+			if (pattern[FindCuby(pattern, objectivePattern[position])][0].ToString().Equals(objectivePattern[position][0].ToString()))
+				wellOriented.Add(FindCuby(pattern, objectivePattern[position]));
+		}
+
+		switch (wellOriented.Count)
+		{
+			case 0:
+
+				Fururf(0, 6);
+				Rotate(pattern, orderList, 5, -1.0f);
+				Fruruf(0, 6);
+
+				break;
+
+			case 2:
+				if (RubikData.opposedFace[RubikData.TOUCHING_FACES[wellOriented[0]][1]] == RubikData.TOUCHING_FACES[wellOriented[1]][1])
+				{
+					if (wellOriented[0] == 7 || wellOriented[0] == 25)
+					{
+
+						Fruruf(6, 2);
+					}
+					else
+					{
+
+						Fruruf(0, 6);
+					}
+				}
+				else
+				{
+					if (
+						(wellOriented[0] == 25 || wellOriented[1] == 25) &&
+						(wellOriented[0] == 15 || wellOriented[1] == 15)
+						)
+					{
+
+						Fururf(8, 0);
+
+
+					}
+					else if (
+						(wellOriented[0] == 15 || wellOriented[1] == 15) &&
+						(wellOriented[0] == 7 || wellOriented[1] == 7)
+						)
+					{
+
+						Fururf(2, 8);
+					}
+					else if (
+						(wellOriented[0] == 7 || wellOriented[1] == 7) &&
+						(wellOriented[0] == 17 || wellOriented[1] == 17)
+						)
+					{
+
+						Fururf(6, 2);
+					}
+					else
+					{
+
+						Fururf(0, 6);
+					}
+				}
+
+				break;
+		}
+
+
+		foreach (int i in new int[] { 7, 15, 17, 25 })
+		{
+			if (!pattern[FindCuby(pattern, objectivePattern[i])].Equals(objectivePattern[i]))
+			{
+				Debug.Log("----------nop for down cross");
+				return null;
+			}
+		}
+
+
+
+		//bien placer la croix
+		List<int> wellPlaced = new List<int>();
+
+		void Rururuur(int r)
+		{
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+		}
+		void Ruururur(int r)
+		{
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+		}
+
+
+		//tourner jusqu'a au moins 1 soit bien placer et oriente
+		RotateUntil(pattern, orderList, 5, 1.0f, () => {
+			foreach (int position in new int[] { 7, 15, 17, 25 })
+			{
+				if (pattern[position].Equals(objectivePattern[position]))
+					return true;
+			}
+
+
+			return false;
+		});
+
+	TRY_AGAIN:
+		foreach (int position in new int[] { 7, 15, 17, 25 })
+		{
+			if (pattern[position].Equals(objectivePattern[position]))
+				wellPlaced.Add(position);
+		}
+
+		int r = -1;
+		string[] backupPattern = (string[])pattern.Clone();
+		switch (wellPlaced.Count)
+		{
+			case 1:
+
+				if (wellPlaced[0] == 7)
+				{
+					r = 6;
+				}
+				else if (wellPlaced[0] == 15)
+				{
+					r = 2;
+				}
+				else if (wellPlaced[0] == 17)
+				{
+					r = 0;
+				}
+				else
+				{
+					r = 8;
+				}
+				Rururuur(r);
+
+				if (
+					!pattern[7].Equals(objectivePattern[7]) ||
+					!pattern[15].Equals(objectivePattern[15]) ||
+					!pattern[17].Equals(objectivePattern[17]) ||
+					!pattern[25].Equals(objectivePattern[25])
+				)
+				{
+					for (int i = 8; i != 0; i--)
+						orderList.RemoveAt(orderList.Count - 1);
+
+					pattern = backupPattern;
+
+					Ruururur(r);
+				}
+
+				break;
+
+
+			case 2:
+
+				if ((wellPlaced[0] == 7 && wellPlaced[1] == 25) || (wellPlaced[0] == 25 && wellPlaced[1] == 7))
+				{
+					r = 0;
+				}
+				else if ((wellPlaced[0] == 15 && wellPlaced[1] == 17) || (wellPlaced[0] == 17 && wellPlaced[1] == 15))
+				{
+					r = 8;
+				}
+				else
+				{
+					foreach (int position in new int[] { 7, 15, 17, 25 })
+					{
+						bool found = false;
+						for (int i = 0; i < wellPlaced.Count; i++)
+						{
+							if (position == wellPlaced[i])
+								found = true;
+						}
+
+						if (!found)
+						{
+							string chosenCuby = pattern[position];
+
+							RotateUntil(pattern, orderList, 5, 1.0f, () => {
+								return FindCuby(pattern, chosenCuby) == FindCuby(objectivePattern, chosenCuby);
+							});
+
+							wellPlaced.Clear();
+
+							goto TRY_AGAIN;
+						}
+
+					}
+
+				}
+
+				Rururuur(r);
+
+				Rotate(pattern, orderList, 5, -1.0f);
+
+				Rururuur(r);
+
+				break;
+		}
+
+
+		foreach (int position in new int[] { 7, 15, 17, 25 })
+		{
+			if (!pattern[position].Equals(objectivePattern[position]))
+			{
+				Debug.Log("down cross misplaced");
+				return null;
+			}
+		}
+
+
+		//bien placer les coins
+		wellPlaced.Clear();
+		backupPattern = (string[])pattern.Clone();
+
+		void Luruluru(int l, int r)
+		{
+			Rotate(pattern, orderList, l, -RubikData.DIRECTION_CORRECTION[l]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, l, RubikData.DIRECTION_CORRECTION[l]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+		}
+
+		void Rulurulu(int l, int r)
+		{
+			Rotate(pattern, orderList, r, RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, l, -RubikData.DIRECTION_CORRECTION[l]);
+			Rotate(pattern, orderList, 5, 1.0f);
+			Rotate(pattern, orderList, r, -RubikData.DIRECTION_CORRECTION[r]);
+			Rotate(pattern, orderList, 5, -1.0f);
+			Rotate(pattern, orderList, l, RubikData.DIRECTION_CORRECTION[l]);
+			Rotate(pattern, orderList, 5, 1.0f);
+		}
+
+		void GetWellPlaced()
+		{
+			foreach (int position in new int[] { 6, 8, 24, 26 })
+			{
+				if (FindCuby(pattern, objectivePattern[position]) == position)
+					wellPlaced.Add(position);
+			}
+		}
+
+
+		GetWellPlaced();
+		if (wellPlaced.Count == 0)
+		{
+			Luruluru(8, 6);
+			GetWellPlaced();
+
+			if (wellPlaced.Count == 0)
+			{
+				for (int i = 8; i != 0; i--)
+					orderList.RemoveAt(orderList.Count - 1);
+
+				pattern = backupPattern;
+
+				Rulurulu(0, 2);
+
+				GetWellPlaced();
+			}
+		}
+
+
+
+
+
+
+
+		if (
+			FindCuby(pattern, objectivePattern[6]) != 6 ||
+			FindCuby(pattern, objectivePattern[8]) != 8 ||
+			FindCuby(pattern, objectivePattern[24]) != 24 ||
+			FindCuby(pattern, objectivePattern[26]) != 26
+			)
+		{
+			int workCorner = wellPlaced[0];
+			backupPattern = (string[])pattern.Clone();
+			Luruluru(RubikData.LURULURU_MAP[workCorner][0], RubikData.LURULURU_MAP[workCorner][1]);
+			if (
+				FindCuby(pattern, objectivePattern[6]) != 6 ||
+				FindCuby(pattern, objectivePattern[8]) != 8 ||
+				FindCuby(pattern, objectivePattern[24]) != 24 ||
+				FindCuby(pattern, objectivePattern[26]) != 26
+				)
+			{
+				for (int i = 8; i != 0; i--)
+					orderList.RemoveAt(orderList.Count - 1);
+				pattern = backupPattern;
+				Rulurulu(RubikData.RULURULU_MAP[workCorner][0], RubikData.RULURULU_MAP[workCorner][1]);
+			}
+		}
+
+
+
+
+		wellPlaced.Clear();
+		GetWellPlaced();
+
+
+
+		foreach (int position in new int[] { 6, 8, 24, 26 })
+		{
+			if (FindCuby(pattern, objectivePattern[position]) != position)
+			{
+				Debug.Log("down corners misplaced");
+				return null;
+			}
+		}
+
+
+
+
+
+
+
+
+
+		//bien oriente les coins
+		List<string> badlyOriented = new List<string>();
+		void Fdfd(int f)
+		{
+			for (int i = 2; i != 0; i--)
+			{
+				Rotate(pattern, orderList, f, RubikData.DIRECTION_CORRECTION[f]);
+				Rotate(pattern, orderList, 3, -1.0f);
+				Rotate(pattern, orderList, f, -RubikData.DIRECTION_CORRECTION[f]);
+				Rotate(pattern, orderList, 3, 1.0f);
+			}
+		}
+		void Dfdf(int f)
+		{
+			for (int i = 2; i != 0; i--)
+			{
+				Rotate(pattern, orderList, 3, -1.0f);
+				Rotate(pattern, orderList, f, RubikData.DIRECTION_CORRECTION[f]);
+				Rotate(pattern, orderList, 3, 1.0f);
+				Rotate(pattern, orderList, f, -RubikData.DIRECTION_CORRECTION[f]);
+			}
+		}
+
+
+
+
+
+		foreach (int position in new int[] { 6, 8, 24, 26 })
+		{
+			if (!pattern[position].Equals(objectivePattern[position]))
+				badlyOriented.Add(pattern[position]);
+		}
+
+
+		if (badlyOriented.Count == 0)
+			goto PASS;
+
+		int workPosition = FindCuby(pattern, badlyOriented[0]);
+		while (badlyOriented.Count != 0)
+		{
+			string chosenCuby = badlyOriented[0];
+			string objectiveCubyDownColor = objectivePattern[FindCuby(objectivePattern, chosenCuby)][0].ToString();
+
+			RotateUntil(pattern, orderList, 5, 1.0f, () => {
+				return FindCuby(pattern, chosenCuby) == workPosition;
+			});
+			if (workPosition == 6 || workPosition == 26)
+			{
+				//---------------------------------------------------bug recemment corrige ici-------------------------------------------------//
+				if (chosenCuby[1].ToString().Equals(objectivePattern[FindCuby(objectivePattern, chosenCuby)][0].ToString()))
+				{
+					Dfdf(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][2]));
+				}
+				else
+				{
+					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][2]));
+				}
+			}
+			else
+			{//----------------------------------------------------------------------le meme bug ici aussi-----------------------------------------------------//
+				if (chosenCuby[2].ToString().Equals(objectivePattern[FindCuby(objectivePattern, chosenCuby)][0].ToString()))
+				{
+					Fdfd(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
+				}
+				else
+				{
+					Dfdf(Array.IndexOf(RubikData.indexFaceMap, RubikData.TOUCHING_FACES[workPosition][1]));
+				}
+			}
+			badlyOriented.RemoveAt(0);
+		}
+
+	PASS:
+
+		RotateUntil(pattern, orderList, 5, 1.0f, () => {
+			return pattern[7].Equals(objectivePattern[7]);
+
+		});
+
+
+
+		for (int i = 0; i < 27; i++)
+		{
+			if (!pattern[i].Equals(objectivePattern[i]))
+			{
+				Debug.Log("nop for complete cube"); Print<string>(objectivePattern);
+				Print<string>(pattern);
+				Print<string>(pattern);
+				return null;
+			}
+
+		}
+		return orderList;
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	protected int FindCuby(Transform cuby)
     	{
 		string[] cubies = new string[27];
@@ -1803,7 +2711,7 @@ public class RubiksCube : MonoBehaviour
 	}
 
 
-	protected void Print<T>(T[] pattern)
+	protected static void Print<T>(T[] pattern)
 	{
 		string message = "[";
 
