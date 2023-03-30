@@ -47,6 +47,20 @@ namespace Android
         }
 
 
+        public void Generate()
+        {
+            Destroy(cube.gameObject);
+
+
+
+
+
+
+            cube = RubiksCube.GenerateCube(RubikData.DEFAULT_PATTERN);
+
+        }
+
+
         public void Left()
         {
             gameCamera.transform.RotateAround(cube.transform.position, Vector3.up, 90.0f);

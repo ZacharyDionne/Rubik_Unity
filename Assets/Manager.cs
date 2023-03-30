@@ -60,12 +60,8 @@ public class Manager : MonoBehaviour
 
 		string[] pattern = { "WBR", "WB", "BOY", "BY", "R", "BR", "YRB", "GY", "RYG", "WR", "Y", "GR", "B", "none", "G", "OG", "W", "RY", "RGW", "GW", "WOB", "OB", "O", "WO", "OWG", "YO", "YOG" };
 
-		List<Order> list = RubiksCube.StartSolve2(pattern, RubikData.DEFAULT_PATTERN);
+		cube.Solve(RubikData.DEFAULT_PATTERN);
 
-		if (list == null)
-			Debug.Log("Impossible");
-		else
-			Debug.Log("ok");
 	}
 
 
