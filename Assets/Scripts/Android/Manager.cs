@@ -15,6 +15,9 @@ namespace Android
         [SerializeField]
         private TMP_InputField inputField;
 
+        [SerializeField]
+        private TMP_InputField output;
+
         private int index = 0;
 
 
@@ -91,21 +94,29 @@ namespace Android
         public void Left()
         {
             gameCamera.transform.RotateAround(cube.transform.position, Vector3.up, 90.0f);
+
         }
 
         public void Right()
         {
             gameCamera.transform.RotateAround(cube.transform.position, Vector3.up, -90.0f);
+ 
         }
 
 
         public void Rotate1()
         {
             cube.Rotate(Index, 1.0f);
+            cube.GetJSON((json) => {
+                output.text = json;
+            });
         }
         public void Rotate2()
         {
             cube.Rotate(Index, -1.0f);
+            cube.GetJSON((json) => {
+                output.text = json;
+            });
         }
 
         public void IndexUp()
